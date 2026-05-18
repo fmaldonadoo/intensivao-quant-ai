@@ -2,14 +2,13 @@
 
 Repositório central do Intensivão Quant AI da Diretoria de Quant da ImpactUFSCar.
 
-**Objetivo:** preparar 7 equipes (~25 membros) para o Desafio Quant AI da Itaú Asset Management, construindo ao longo de 5 semanas uma estratégia de momentum cross-seccional no IBOVESPA do zero.
+**Objetivo:** preparar 7 equipes para o Desafio Quant AI da Itaú Asset Management, construindo ao longo de 5 semanas uma estratégia de momentum cross-seccional no IBOVESPA do zero.
 
 ---
 
 ## Como usar este repositório
 
-- **Se você é aluno:** vá direto para a pasta da aula corrente em `aulas/`. Cada pasta contém o notebook que o Felipe codificou ao vivo. Clone, rode, e replique no repositório da sua equipe.
-- **Se você é instrutor:** consulte o `docs/briefing.md` para o contexto completo do intensivão e a pasta `estrategia/momentum-ibovespa/` para a especificação da estratégia.
+vá direto para a pasta da aula corrente em `aulas/`. Cada pasta contém o notebook que o Felipe codificou ao vivo. Clone, rode, e replique no repositório da sua equipe.
 
 ---
 
