@@ -1,0 +1,29 @@
+# Dados gerados (cada aluno gera ao rodar os notebooks)
+dados/
+*.parquet
+
+# Jupyter
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+*.egg-info/
+dist/
+build/
+
+# Imagens geradas pelos notebooks
+aulas/**/*.png
+
+# OS
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# Outputs temporários
+*.log
