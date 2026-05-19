@@ -1,0 +1,495 @@
+\documentclass[aspectratio=169,12pt]{beamer}
+\usepackage{fontspec}
+\usepackage[portuguese]{babel}
+\usepackage{xcolor,listings,tikz,booktabs,amsmath,amssymb,graphicx,multicol,array,colortbl}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,calc}
+
+\definecolor{navy}{HTML}{0D1B3E}
+\definecolor{gold}{HTML}{F5A623}
+\definecolor{qgreen}{HTML}{1E8B4C}
+\definecolor{qblue}{HTML}{1A6EAE}
+\definecolor{codebg}{HTML}{EEF3F8}
+
+\usetheme{default}
+\useinnertheme{circles}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}{%
+  \hfill{\color{gray!60}\scriptsize\insertframenumber/\inserttotalframenumber}\hspace{.6em}\vspace{.4em}}
+
+\setbeamercolor{frametitle}{bg=navy,fg=white}
+\setbeamercolor{structure}{fg=navy}
+\setbeamercolor{alerted text}{fg=gold}
+\setbeamercolor{item}{fg=gold}
+\setbeamercolor{subitem}{fg=navy}
+\setbeamercolor{block title}{bg=qblue,fg=white}
+\setbeamercolor{block body}{bg=qblue!8,fg=black}
+\setbeamercolor{block title alerted}{bg=gold,fg=navy}
+\setbeamercolor{block body alerted}{bg=gold!15,fg=navy}
+\setbeamercolor{block title example}{bg=qgreen,fg=white}
+\setbeamercolor{block body example}{bg=qgreen!10,fg=black}
+\setbeamerfont{frametitle}{size=\large,series=\bfseries}
+\setbeamerfont{block title}{series=\bfseries}
+
+\setbeamertemplate{title page}{%
+  \begin{tikzpicture}[remember picture,overlay]
+    \fill[navy](current page.north west)rectangle(current page.south east);
+    \fill[gold]([yshift=.7cm]current page.south west)rectangle(current page.south east);
+    \node[anchor=south,yshift=.73cm,navy,font=\tiny\bfseries]at(current page.south)
+      {INTENSIV\~{A}O QUANT AI \textbullet{} IMPACT UFSCAR};
+  \end{tikzpicture}
+  \vspace{.65cm}
+  \begin{center}
+    {\color{gold}\scriptsize\bfseries INTENSIV\~{A}O QUANT AI \textbullet{} IMPACT UFSCAR}\\[.4cm]
+    {\color{white}\LARGE\bfseries\inserttitle}\\[.25cm]
+    {\color{gold!85}\normalsize\insertsubtitle}\\[.5cm]
+    {\color{white!70}\small\insertauthor}\\[.1cm]
+    {\color{white!50}\footnotesize\insertdate}
+  \end{center}}
+
+\lstdefinestyle{python}{language=Python,
+  basicstyle=\ttfamily\scriptsize\color{qblue},
+  keywordstyle=\color{navy}\bfseries,
+  stringstyle=\color{qgreen!80!black},
+  commentstyle=\color{gray!70}\itshape,
+  backgroundcolor=\color{codebg},
+  frame=l,framerule=2pt,rulecolor=\color{gold},
+  xleftmargin=1em,breaklines=true,showstringspaces=false,tabsize=4,
+  extendedchars=false,inputencoding=ascii}
+\lstset{style=python}
+
+\author{Felipe Maldonado\\{\scriptsize VP Diretoria Quant~\textbullet{}~Impact UFSCAR}}
+\date{Intensiv\~{a}o Quant AI 2025}
+\title{Aula 01 --- Kickoff}
+\subtitle{Do Zero ao Portfólio Quant em 10 Semanas}
+
+\begin{document}
+
+\begin{frame}[plain]
+\titlepage
+\end{frame}
+
+\begin{frame}[fragile]{Agenda}
+
+\begin{multicols}{2}
+\tableofcontents
+\end{multicols}
+\end{frame}
+
+\section{Motivação}
+\begin{frame}[fragile]{Por que Gestão Quantitativa?}
+\begin{columns}[T]
+  \column{0.5\textwidth}
+\begin{itemize}
+  \item Retornos consistentes baseados em \textbf{processo}, não intuição
+  \item Escala: uma estratégia testa \alert{milhares} de ativos simultaneamente
+  \item Reprodutibilidade: resultados auditáveis e rastreáveis
+  \item Vantagem competitiva: explora anomalias antes do mercado precificar
+\end{itemize}
+  \column{0.47\textwidth}
+\begin{block}{Mercado Brasileiro}
+\begin{itemize}
+  \item B3: \textasciitilde 450 ações listadas
+  \item IBOVESPA: \textasciitilde 90 ativos, revisado a cada 4 meses
+  \item Fundos quant no Brasil cresceram $>$200\% em 5 anos
+  \item Itaú, Verde, Giant Steps, Kadima, Ibiuna
+\end{itemize}
+\end{block}
+\end{columns}
+\end{frame}
+
+\section{Universos de Investimento}
+\begin{frame}[fragile]{Universos de Investimento}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{>{\bfseries\color{navy}}l p{2.8cm} p{2.8cm} p{3cm}}
+\rowcolor{navy}\color{white}\textbf{Classe} & \color{white}\textbf{Exemplos} &
+  \color{white}\textbf{Retorno} & \color{white}\textbf{Risco principal}\\
+\rowcolor{qblue!10}Renda Fixa     & Tesouro, CDB, LCI & Juros + spread    & Crédito / duration\\
+Renda Variável  & Ações, FIIs, BDRs & Dividendo + capital& Volatilidade\\
+\rowcolor{qblue!10}Derivativos    & Futuros, Opções   & Assimétrico       & Alavancagem\\
+Alternativos    & FIPs, Crypto      & Alta variância    & Liquidez\\
+\end{tabular}
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]{Renda Fixa — Fundamentos}
+\begin{columns}[T]
+  \column{0.5\textwidth}
+\begin{itemize}
+  \item \textbf{Tesouro Selic} — pós-fixado, risco soberano mínimo
+  \item \textbf{Tesouro IPCA+} — proteção contra inflação (duration longa)
+  \item \textbf{CDB / LCI / LCA} — risco bancário, cobertura FGC até R\$250k
+  \item \textbf{Debêntures} — spread de crédito, menor liquidez
+\end{itemize}
+  \column{0.47\textwidth}
+\begin{block}{Conceitos-chave}
+\begin{itemize}
+  \item \textbf{Duration}: sensibilidade ao juro; $\Delta P \approx -D\,\Delta y$
+  \item \textbf{Spread}: prêmio sobre a taxa livre de risco
+  \item \textbf{Rating}: probabilidade implícita de default
+\end{itemize}
+\end{block}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Renda Variável — Ações e Derivados}
+\begin{columns}[T]
+  \column{0.5\textwidth}
+\begin{itemize}
+  \item \textbf{Ações ordinárias (ON)}: direito a voto + dividendos
+  \item \textbf{Ações preferenciais (PN)}: prioridade no dividendo
+  \item \textbf{FIIs}: imóveis via bolsa, distribuição mensal obrigatória
+  \item \textbf{BDRs}: recibos de ações estrangeiras negociadas na B3
+\end{itemize}
+  \column{0.47\textwidth}
+\begin{block}{Componentes do retorno}
+\begin{itemize}
+  \item $r_t = \dfrac{P_t - P_{t-1} + D_t}{P_{t-1}}$
+  \item $D_t$: dividendos e juros sobre capital próprio
+  \item Retorno total ex-dividendos $\neq$ retorno total
+\end{itemize}
+\end{block}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Derivativos e Mercados Alternativos}
+\begin{columns}[T]
+  \column{0.5\textwidth}
+\begin{itemize}
+  \item \textbf{Futuros}: obrigação de comprar/vender no vencimento (IBOV, DI, Dólar)
+  \item \textbf{Opções}: direito (não obrigação); Call e Put
+  \item \textbf{Swaps}: troca de fluxos de caixa (DI $\times$ IPCA, por ex.)
+  \item \textbf{Hedge vs especulação}: mesmo instrumento, propósitos opostos
+\end{itemize}
+  \column{0.47\textwidth}
+\begin{block}{Alternativos}
+\begin{itemize}
+  \item FIPs: private equity ilíquido, horizonte $>$5 anos
+  \item Commodities: ouro, petróleo, agro — diversificação real
+  \item Cripto: alta vol, correlação baixa com RV tradicional
+\end{itemize}
+\end{block}
+\end{columns}
+\end{frame}
+
+\section{Teoria Financeira Clássica}
+\begin{frame}[fragile]{Teoria Moderna do Portfólio — Markowitz (1952)}
+\begin{columns}[T]
+  \column{0.5\textwidth}
+\textbf{Problema de otimização:}
+\[
+\min_{\mathbf{w}}\;\mathbf{w}^\top\boldsymbol{\Sigma}\mathbf{w}
+\quad\text{s.t.}\quad
+\mathbf{w}^\top\boldsymbol{\mu}\ge r^*,\;
+\mathbf{w}^\top\mathbf{1}=1
+\]
+\vspace{.3em}
+\begin{itemize}
+  \item $\mathbf{w}$: vetor de pesos
+  \item $\boldsymbol{\Sigma}$: matriz de covariâncias $n\times n$
+  \item $\boldsymbol{\mu}$: vetor de retornos esperados
+  \item Resultado: \alert{fronteira eficiente}
+\end{itemize}
+  \column{0.47\textwidth}
+\begin{block}{Insight central}
+Diversificação reduz risco sem necessariamente reduzir retorno. O risco de um portfólio depende das \textbf{covariâncias} entre ativos, não só das variâncias individuais.
+\end{block}
+\vspace{.3em}
+\begin{alertblock}{Limitação prática}
+Markowitz é extremamente sensível à estimação de $\boldsymbol{\mu}$ — pequenos erros geram pesos concentrados e instáveis (Michaud, 1989).
+\end{alertblock}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Hipótese de Mercado Eficiente — Fama (1970)}
+
+\begin{columns}[T]
+  \column{0.32\textwidth}
+  \begin{block}{Forma Fraca}
+    Preços refletem todo o histórico de preços e volumes.\\[.3em]
+    \textbf{Implicação}: análise técnica não gera alpha.
+  \end{block}
+  \column{0.32\textwidth}
+  \begin{block}{Forma Semiforte}
+    + informações públicas (relatórios, dividendos).\\[.3em]
+    \textbf{Implicação}: análise fundamentalista não gera alpha.
+  \end{block}
+  \column{0.32\textwidth}
+  \begin{alertblock}{Forma Forte}
+    + informações privadas (insider).\\[.3em]
+    \textbf{Implicação}: ninguém bate o mercado consistentemente.
+  \end{alertblock}
+\end{columns}
+\vspace{.4em}
+\begin{exampleblock}{Por que estudamos anomalias então?}
+  Evidências empíricas contra a HME: anomalias persistentes sugerem que mercados são
+  \textit{aproximadamente} eficientes — e as ineficiências são nossa oportunidade.
+\end{exampleblock}
+\end{frame}
+
+\section{Anomalias e Factor Investing}
+\begin{frame}[fragile]{Anomalias de Mercado}
+\begin{columns}[T]
+  \column{0.5\textwidth}
+\begin{itemize}
+  \item \textbf{Size} (Banz, 1981): small caps superam large caps em risco ajustado
+  \item \textbf{Value} (Stattman, 1980): alto P/VPA $\Rightarrow$ baixo retorno futuro
+  \item \textbf{Momentum} (Jegadeesh \& Titman, 1993): vencedores continuam vencendo
+  \item \textbf{Low Volatility} (Black, 1972): ativos de baixa vol superam CAPM
+  \item \textbf{Quality} (Novy-Marx, 2013): empresas rentáveis superam
+\end{itemize}
+  \column{0.47\textwidth}
+\begin{block}{Persistência no Brasil}
+\begin{itemize}
+  \item Mussa et al.\ (2012): momentum e value significativos no IBOVESPA
+  \item Fama-French 3F aplicado ao Brasil por Málaga \& Securato (2004)
+  \item Prêmios menores que EUA, mas estatisticamente presentes
+\end{itemize}
+\end{block}
+\vspace{.3em}
+\begin{alertblock}{Explicações}
+\begin{itemize}
+  \item Risco não capturado pelo CAPM
+  \item Vieses comportamentais dos investidores
+  \item Fricções de mercado (liquidez, custos)
+\end{itemize}
+\end{alertblock}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Factor Investing — Fama \& French (1993)}
+\begin{columns}[T]
+  \column{0.5\textwidth}
+\textbf{CAPM} (Sharpe, 1964):
+\[ r_i - r_f = \alpha + \beta_{\text{MKT}}\,(r_m-r_f) + \varepsilon \]
+
+\textbf{Fama-French 3F} (1993):
+\[ r_i - r_f = \alpha + \beta_M\,\text{MKT} + \beta_S\,\text{SMB} + \beta_V\,\text{HML} + \varepsilon \]
+
+\textbf{Fama-French 5F} (2015):
+\[ +\;\beta_R\,\text{RMW} + \beta_I\,\text{CMA} \]
+
+\vspace{.2em}
+\begin{itemize}
+  \item SMB: \textit{Small Minus Big}
+  \item HML: \textit{High Minus Low} (book-to-market)
+  \item RMW: \textit{Robust Minus Weak} (rentabilidade)
+  \item CMA: \textit{Conservative Minus Aggressive} (investimento)
+\end{itemize}
+  \column{0.47\textwidth}
+\begin{block}{Nossa estratégia}
+\begin{itemize}
+  \item Foco em \textbf{Momentum} — não coberto pelo modelo 5F original
+  \item Carhart (1997) adicionou MOM como 4º fator
+  \item Momentum é o fator com maior Sharpe histórico (Asness et al., 2013)
+\end{itemize}
+\end{block}
+\vspace{.3em}
+\begin{exampleblock}{Smart Beta}
+\begin{itemize}
+  \item ETFs que replicam fatores sistematicamente
+  \item Ex: BOVA11 (mercado), SMALL11 (size)
+  \item Fundos quant = seleção dinâmica de ativos
+\end{itemize}
+\end{exampleblock}
+\end{columns}
+\end{frame}
+
+\section{Momentum e Behavioral Finance}
+\begin{frame}[fragile]{O Fator Momentum — Jegadeesh \& Titman (1993)}
+\begin{columns}[T]
+  \column{0.5\textwidth}
+\textbf{Definição do sinal 12-1:}
+\[
+\text{Sinal}_t = \sum_{k=2}^{12} r_{t-k}
+\]
+equivalente a:
+\begin{lstlisting}
+ret.shift(2).rolling(11).sum()
+\end{lstlisting}
+\vspace{.3em}
+\begin{itemize}
+  \item Janela de 12 meses; exclui mês mais recente (reversão de curto prazo)
+  \item Ranking cross-sectional: compra top decil, vende bottom decil
+  \item Horizonte de holding: 3--12 meses
+\end{itemize}
+  \column{0.47\textwidth}
+\begin{block}{Evidências Empíricas}
+\begin{itemize}
+  \item EUA (1927--1989): prêmio de 3--12\% a.a.\ (J\&T, 1993)
+  \item Internacional: 40 países (Rouwenhorst, 1998)
+  \item Brasil: significativo em períodos $>$6 meses (Mussa et al., 2012)
+  \item Ativos: ações, moedas, commodities, bonds (Asness et al., 2013)
+\end{itemize}
+\end{block}
+\vspace{.3em}
+\begin{alertblock}{Momentum Crash}
+\begin{itemize}
+  \item Crises de liquidez revertem momentum abruptamente
+  \item Controle: ajuste por volatilidade (Moskowitz et al., 2012)
+\end{itemize}
+\end{alertblock}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Finanças Comportamentais}
+\begin{columns}[T]
+  \column{0.5\textwidth}
+\begin{itemize}
+  \item \textbf{Herding}: investidores seguem a maioria, amplificando tendências
+  \item \textbf{Underreaction}: mercado demora a incorporar novas informações
+  \item \textbf{Overreaction}: eventual correção exagerada (reversão de longo prazo)
+  \item \textbf{Disposition Effect}: vende ganhador cedo, segura perdedor
+\end{itemize}
+  \column{0.47\textwidth}
+\begin{block}{Hong \& Stein (1999)}
+
+\textit{A unified theory of underreaction, momentum trading and overreaction.}\\[.3em]
+Dois tipos de agentes:
+\begin{itemize}
+  \item \textbf{News watchers}: agem em fundamentos, propagação lenta
+  \item \textbf{Momentum traders}: agem em preço passado
+\end{itemize}
+Interação gera momentum no curto prazo e reversão no longo prazo.
+\end{block}
+\vspace{.2em}
+\begin{exampleblock}{Kahneman (2011)}
+Sistema 1 (rápido, intuitivo) vs Sistema 2 (lento, racional). Vieses cognitivos são previsíveis e exploráveis.
+\end{exampleblock}
+\end{columns}
+\end{frame}
+
+\section{O Desafio Itaú}
+\begin{frame}[fragile]{O Desafio Itaú Asset Management}
+\begin{columns}[T]
+  \column{0.5\textwidth}
+\begin{block}{O que é?}
+\begin{itemize}
+  \item Competição nacional de gestão quantitativa de portfólios
+  \item Promovida pela Itaú Asset Management
+  \item Foco em estratégias sistemáticas com dados reais
+  \item Participantes: universidades e grupos de pesquisa
+\end{itemize}
+\end{block}
+\vspace{.3em}
+\begin{block}{Critérios de Avaliação}
+\begin{itemize}
+  \item \textbf{Rigor metodológico}: backtest sem viés, walk-forward
+  \item \textbf{Fundamentação econômica}: por que o fator funciona?
+  \item \textbf{Qualidade do código}: reprodutível, documentado
+  \item \textbf{Comunicação}: clareza, honestidade sobre limitações
+\end{itemize}
+\end{block}
+  \column{0.47\textwidth}
+\begin{block}{Entregáveis}
+\begin{itemize}
+  \item Relatório técnico (PDF)
+  \item Código reprodutível (GitHub)
+  \item Apresentação oral de 10 min + 5 min de perguntas
+  \item Pipeline completo: dados $\to$ sinal $\to$ portfólio $\to$ backtest $\to$ validação
+\end{itemize}
+\end{block}
+\vspace{.3em}
+\begin{exampleblock}{Nossa preparação}
+\begin{itemize}
+  \item 10 semanas de treinamento intensivo
+  \item Pipeline completo em Python com dados reais do IBOVESPA
+  \item Sinal de momentum academicamente fundamentado
+  \item Backtest rigoroso com DSR e walk-forward
+\end{itemize}
+\end{exampleblock}
+\end{columns}
+\end{frame}
+
+\section{Nossa Abordagem}
+\begin{frame}[fragile]{Pipeline Técnico do Intensivão}
+
+\begin{center}
+\begin{tikzpicture}[node distance=.7cm and .5cm,
+  box/.style={draw=navy,fill=navy!8,rounded corners=3pt,text width=1.7cm,align=center,
+              font=\scriptsize\bfseries,inner sep=4pt},
+  arr/.style={-Stealth,navy,thick}]
+  \node[box](d){Dados\\{\tiny yfinance}};
+  \node[box,right=of d](e){EDA\\{\tiny análise}};
+  \node[box,right=of e](s){Sinal v1\\{\tiny 12-1}};
+  \node[box,right=of s](p){Portfólio\\{\tiny top 20\%}};
+  \node[box,right=of p](b){Backtest\\{\tiny IS}};
+  \node[box,right=of b](v){Validação\\{\tiny OOS/DSR}};
+  \node[box,right=of v](r){Relatório\\{\tiny defesa}};
+
+  \draw[arr](d)--(e); \draw[arr](e)--(s); \draw[arr](s)--(p);
+  \draw[arr](p)--(b); \draw[arr](b)--(v); \draw[arr](v)--(r);
+
+  \node[below=.4cm of s,font=\scriptsize,gold]{\textbf{Sinal v2}};
+  \node[below=.4cm of p,font=\scriptsize,gold]{\textbf{Vol-weight}};
+  \node[below=.4cm of v,font=\scriptsize,gold]{\textbf{Walk-forward}};
+\end{tikzpicture}
+\end{center}
+\vspace{.2em}
+\begin{columns}[T]
+  \column{0.33\textwidth}
+  \begin{block}{Dados (Aulas 2--3)}
+    IBOVESPA via yfinance\\Limpeza, retornos mensais\\EDA: fat tails, correlações
+  \end{block}
+  \column{0.33\textwidth}
+  \begin{block}{Estratégia (Aulas 4--7)}
+    Sinal momentum 12-1\\Alocação: EW, vol-weight\\Backtest e métricas
+  \end{block}
+  \column{0.33\textwidth}
+  \begin{block}{Validação (Aulas 8--10)}
+    Walk-forward OOS\\DSR, análise de sensibilidade\\GenAI + relatório final
+  \end{block}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Roadmap --- 10 Aulas}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{>{\bfseries\color{navy}}c >{\bfseries}l p{5.5cm} l}
+\rowcolor{navy}\color{white}\# & \color{white}Tema & \color{white}Conteúdo principal & \color{white}Entregável\\
+\rowcolor{gold!15}01 & Kickoff        & Teoria, mercados, pipeline, roadmap        & Este slide\\
+02 & Dados          & yfinance, limpeza, retornos mensais       & 3 parquets\\
+\rowcolor{gold!15}03 & EDA            & Distribuições, fat tails, correlações     & Gráficos\\
+04 & Sinal v1       & Momentum 12-1, IC, ranking                & sinal\_v1.parquet\\
+\rowcolor{gold!15}05 & Backtest v1    & Sharpe, MDD, equity curve                 & ret\_carteira.parquet\\
+06 & Alocação       & Equal-weight, vol-weight, Markowitz       & pesos\_v2.parquet\\
+\rowcolor{gold!15}07 & Sinal v2       & Vol-adjusted momentum, IC melhorado       & sinal\_v2.parquet\\
+08 & Backtest Rig.  & Walk-forward, DSR, look-ahead bias        & ret\_oos.parquet\\
+\rowcolor{gold!15}09 & GenAI          & API Anthropic, narrativas, pesquisa       & Relatório narrativo\\
+10 & Relatório      & Painel final, sensibilidade, defesa       & PDF + GitHub\\
+\end{tabular}
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]{Referências Bibliográficas}
+
+\begin{multicols}{2}
+\tiny
+\begin{itemize}
+  \item \textbf{Markowitz, H.} (1952). Portfolio Selection. \textit{Journal of Finance}, 7(1), 77--91.
+  \item \textbf{Sharpe, W.} (1964). Capital asset prices. \textit{Journal of Finance}, 19(3), 425--442.
+  \item \textbf{Fama, E.} (1970). Efficient capital markets. \textit{Journal of Finance}, 25(2), 383--417.
+  \item \textbf{Black, F.} (1972). Capital market equilibrium with restricted borrowing. \textit{Journal of Business}, 45(3).
+  \item \textbf{Banz, R.} (1981). The relationship between return and market value. \textit{JFE}, 9(1), 3--18.
+  \item \textbf{Stattman, D.} (1980). Book values and stock returns. \textit{Chicago MBA}, 4, 25--45.
+  \item \textbf{Jegadeesh, N. \& Titman, S.} (1993). Returns to buying winners. \textit{Journal of Finance}, 48(1), 65--91.
+  \item \textbf{Fama, E. \& French, K.} (1993). Common risk factors. \textit{JFE}, 33(1), 3--56.
+  \item \textbf{Rouwenhorst, K.} (1998). International momentum strategies. \textit{Journal of Finance}, 53(1), 267--284.
+  \item \textbf{Hong, H. \& Stein, J.} (1999). A unified theory of underreaction. \textit{Journal of Finance}, 54(6), 2143--2184.
+  \item \textbf{Carhart, M.} (1997). On persistence in mutual fund performance. \textit{Journal of Finance}, 52(1), 57--82.
+  \item \textbf{Kahneman, D.} (2011). \textit{Thinking, Fast and Slow}. Farrar, Straus and Giroux.
+  \item \textbf{DeMiguel, V.\ et al.} (2009). Optimal versus naive diversification. \textit{RFS}, 22(5), 1915--1953.
+  \item \textbf{Fama, E. \& French, K.} (2015). A five-factor asset pricing model. \textit{JFE}, 116(1), 1--22.
+  \item \textbf{Moskowitz, T.\ et al.} (2012). Time series momentum. \textit{JFE}, 104(2), 228--250.
+  \item \textbf{Asness, C.\ et al.} (2013). Value and momentum everywhere. \textit{Journal of Finance}, 68(3), 929--985.
+  \item \textbf{Novy-Marx, R.} (2013). The other side of value. \textit{JFE}, 108(1), 1--28.
+  \item \textbf{Mussa, A.\ et al.} (2012). Hipótese de mercados eficientes e finanças comportamentais. \textit{REGE}, 19(2).
+  \item \textbf{Bailey, D. \& López de Prado, M.} (2014). The deflated Sharpe ratio. \textit{Journal of Portfolio Management}, 40(5).
+  \item \textbf{López de Prado, M.} (2018). \textit{Advances in Financial Machine Learning}. Wiley.
+\end{itemize}
+\end{multicols}
+\end{frame}
+
+\end{document}

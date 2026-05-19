@@ -1,0 +1,209 @@
+\documentclass[aspectratio=169,12pt]{beamer}
+\usepackage{fontspec}
+\usepackage[portuguese]{babel}
+\usepackage{xcolor,listings,tikz,booktabs,amsmath,amssymb,graphicx,multicol,array,colortbl}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,calc}
+
+\definecolor{navy}{HTML}{0D1B3E}
+\definecolor{gold}{HTML}{F5A623}
+\definecolor{qgreen}{HTML}{1E8B4C}
+\definecolor{qblue}{HTML}{1A6EAE}
+\definecolor{codebg}{HTML}{EEF3F8}
+
+\usetheme{default}
+\useinnertheme{circles}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}{%
+  \hfill{\color{gray!60}\scriptsize\insertframenumber/\inserttotalframenumber}\hspace{.6em}\vspace{.4em}}
+
+\setbeamercolor{frametitle}{bg=navy,fg=white}
+\setbeamercolor{structure}{fg=navy}
+\setbeamercolor{alerted text}{fg=gold}
+\setbeamercolor{item}{fg=gold}
+\setbeamercolor{subitem}{fg=navy}
+\setbeamercolor{block title}{bg=qblue,fg=white}
+\setbeamercolor{block body}{bg=qblue!8,fg=black}
+\setbeamercolor{block title alerted}{bg=gold,fg=navy}
+\setbeamercolor{block body alerted}{bg=gold!15,fg=navy}
+\setbeamercolor{block title example}{bg=qgreen,fg=white}
+\setbeamercolor{block body example}{bg=qgreen!10,fg=black}
+\setbeamerfont{frametitle}{size=\large,series=\bfseries}
+\setbeamerfont{block title}{series=\bfseries}
+
+\setbeamertemplate{title page}{%
+  \begin{tikzpicture}[remember picture,overlay]
+    \fill[navy](current page.north west)rectangle(current page.south east);
+    \fill[gold]([yshift=.7cm]current page.south west)rectangle(current page.south east);
+    \node[anchor=south,yshift=.73cm,navy,font=\tiny\bfseries]at(current page.south)
+      {INTENSIVÃO QUANT AI \textbullet{} IMPACT UFSCAR};
+  \end{tikzpicture}
+  \vspace{.65cm}
+  \begin{center}
+    {\color{gold}\scriptsize\bfseries INTENSIVÃO QUANT AI \textbullet{} IMPACT UFSCAR}\\[.4cm]
+    {\color{white}\LARGE\bfseries\inserttitle}\\[.25cm]
+    {\color{gold!85}\normalsize\insertsubtitle}\\[.5cm]
+    {\color{white!70}\small\insertauthor}\\[.1cm]
+    {\color{white!50}\footnotesize\insertdate}
+  \end{center}}
+
+\lstdefinestyle{python}{language=Python,
+  basicstyle=\ttfamily\scriptsize\color{qblue},
+  keywordstyle=\color{navy}\bfseries,
+  stringstyle=\color{qgreen!80!black},
+  commentstyle=\color{gray!70}\itshape,
+  backgroundcolor=\color{codebg},
+  frame=l,framerule=2pt,rulecolor=\color{gold},
+  xleftmargin=1em,breaklines=true,showstringspaces=false,tabsize=4,
+  extendedchars=false,inputencoding=ascii}
+\lstset{style=python}
+
+\author{Felipe Maldonado\\{\scriptsize VP Diretoria Quant~\textbullet{}~Impact UFSCAR}}
+\date{Intensivão Quant AI 2025}
+\title{Aula 08 --- Backtest Rigoroso}
+\subtitle{Walk-Forward, DSR e Validação Estatística}
+
+\begin{document}
+
+\begin{frame}[plain]
+\titlepage
+\end{frame}
+
+\begin{frame}[fragile]{Nesta Aula}
+\begin{columns}[T]
+  \column{0.5\textwidth}
+\begin{block}{Teoria (35 min)}
+\begin{itemize}
+  \item Os três grandes vieses em backtests
+  \item Look-ahead bias: detecção e prevenção
+  \item Multiple testing bias: Harvey, Liu \& Zhu (2016)
+  \item Walk-forward analysis: metodologia e implementação
+  \item Deflated Sharpe Ratio (DSR): Bailey \& López de Prado (2014)
+\end{itemize}
+\end{block}
+  \column{0.47\textwidth}
+\begin{block}{Código (65 min)}
+\begin{itemize}
+  \item \texttt{backtest\_walkforward()} — OOS puro
+  \item \texttt{calcular\_dsr()} — penalização por múltiplos testes
+  \item Visualização: IS vs OOS, distribuição de retornos
+  \item Salvar \texttt{retorno\_walkforward\_liquido.parquet}
+\end{itemize}
+\end{block}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Os Três Vieses do Backtest}
+\begin{columns}[T]
+  \column{0.5\textwidth}
+\begin{block}{1. Look-ahead Bias}
+Uso de informação futura na decisão de hoje.\\
+\textbf{Exemplo}: usar $r_t$ para formar o sinal de $t$.\\
+\textbf{Prevenção}: sempre \texttt{shift(1)} no backtest.
+\end{block}
+\vspace{.3em}
+\begin{block}{2. Survivorship Bias}
+Só analisa ativos que sobreviveram até hoje.\\
+\textbf{Exemplo}: dataset com só as empresas que não faliram.\\
+\textbf{Prevenção}: incluir composição histórica do índice.
+\end{block}
+\vspace{.3em}
+\begin{alertblock}{3. Multiple Testing Bias}
+Testar $N$ variações e reportar apenas a melhor.\\
+Com $N=100$ e $\alpha=5\%$, esperam-se 5 falsos positivos por acaso.\\
+\textbf{Correção}: ajuste de Bonferroni ou DSR.
+\end{alertblock}
+  \column{0.47\textwidth}
+\begin{block}{Harvey, Liu \& Zhu (2016)}
+
+Analisaram $>$300 fatores publicados em finanças.\\
+\vspace{.2em}
+\textbf{Conclusão}: a maioria são \textbf{falsos positivos}.\\
+O $t$-statistic mínimo aceitável evoluiu:
+\begin{itemize}
+  \item 1960s: $t > 2{,}0$ (Sharpe)
+  \item 2000s: $t > 3{,}0$ (Harvey et al.)
+  \item Hoje: DSR $> 0{,}95$ (López de Prado)
+\end{itemize}
+\end{block}\vspace{.3em}
+\begin{exampleblock}{Walk-Forward}
+
+Treina em janela rolling (36m), testa nos próximos 6m.
+Cada retorno OOS foi gerado com parâmetros calculados \textbf{antes} do período de teste.
+\end{exampleblock}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Deflated Sharpe Ratio}
+\begin{columns}[T]
+  \column{0.5\textwidth}
+\textbf{Sharpe Ratio não ajustado:}
+\[ \hat{S} = \frac{\overline{r}}{\hat\sigma}\,\sqrt{12} \]
+
+\textbf{Deflated Sharpe Ratio (Bailey \& López de Prado, 2014):}
+\[ \text{DSR} = \Phi\!\left(\frac{(\hat{S} - E[\max S]) \sqrt{T-1}}{\sqrt{1 - \hat\rho\,E[\max S] + \hat{S}^2\,(\hat\kappa-1)/4}}\right) \]
+
+Onde $E[\max S]$ cresce com o número de estratégias testadas $N$:
+\[ E[\max S] \approx \sqrt{2}\,\Phi^{-1}\!\!\left(1 - \frac{1}{N}\right) \]
+  \column{0.47\textwidth}
+\begin{block}{Interpretação do DSR}
+\begin{itemize}
+  \item $\text{DSR} \in [0, 1]$: probabilidade de que o resultado é genuíno
+  \item $\text{DSR} > 0{,}95$: robusto (nível de confiança 95\%)
+  \item $\text{DSR} < 0{,}5$: forte suspeita de overfitting
+  \item Penaliza por: número de testes, skewness e kurtosis dos retornos
+\end{itemize}
+\end{block}\vspace{.3em}
+\begin{exampleblock}{Fórmula captura}
+\begin{itemize}
+  \item Correção por não-normalidade ($\hat\gamma$, $\hat\kappa$)
+  \item Penalização por $N$ estratégias testadas
+  \item Incerteza estatística de $\hat{S}$ com $T$ observações
+\end{itemize}
+\end{exampleblock}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{O que Vamos Construir}
+\begin{columns}[T]
+  \column{0.52\textwidth}
+\begin{block}{Funções a implementar}
+\begin{itemize}
+  \item \texttt{backtest\_walkforward(sinal, ret, treino=36, teste=6)} $\to$ ret OOS
+  \item \texttt{calcular\_dsr(retornos, n\_estrategias=5)} $\to$ dicionário de métricas
+  \item \texttt{plot\_is\_vs\_oos(ret\_is, ret\_oos)} $\to$ comparação visual
+\end{itemize}
+\end{block}
+  \column{0.45\textwidth}
+\begin{block}{Entradas (parquets)}
+\begin{itemize}
+  \item \texttt{sinal\_v2.parquet}
+  \item \texttt{retornos\_mensais\_limpo.parquet}
+  \item \texttt{retorno\_carteira.parquet}
+\end{itemize}
+\end{block}
+\vspace{.4em}
+\begin{exampleblock}{Saídas (parquets)}
+\begin{itemize}
+  \item \texttt{retorno\_walkforward\_liquido.parquet}
+  \item Gráfico IS vs OOS
+  \item Tabela DSR e métricas OOS
+\end{itemize}
+\end{exampleblock}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Referências}
+\begin{multicols}{2}
+\tiny
+\begin{itemize}
+  \item \textbf{Bailey, D. \& López de Prado, M.} (2014). The deflated Sharpe ratio. \textit{Journal of Portfolio Management}, 40(5).
+  \item \textbf{Harvey, C., Liu, Y. \& Zhu, H.} (2016). ... and the cross-section of expected returns. \textit{Review of Financial Studies}, 29(1), 5--68.
+  \item \textbf{López de Prado, M.} (2018). \textit{Advances in Financial Machine Learning}. Wiley.
+  \item \textbf{White, H.} (2000). A reality check for data snooping. \textit{Econometrica}, 68(5), 1097--1126.
+  \item \textbf{Romano, J. \& Wolf, M.} (2005). Stepwise multiple testing as formalized data snooping. \textit{Econometrica}, 73(4), 1237--1282.
+\end{itemize}
+\end{multicols}
+\end{frame}
+
+
+\end{document}

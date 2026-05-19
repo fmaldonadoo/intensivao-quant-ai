@@ -1,0 +1,207 @@
+\documentclass[aspectratio=169,12pt]{beamer}
+\usepackage{fontspec}
+\usepackage[portuguese]{babel}
+\usepackage{xcolor,listings,tikz,booktabs,amsmath,amssymb,graphicx,multicol,array,colortbl}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,calc}
+
+\definecolor{navy}{HTML}{0D1B3E}
+\definecolor{gold}{HTML}{F5A623}
+\definecolor{qgreen}{HTML}{1E8B4C}
+\definecolor{qblue}{HTML}{1A6EAE}
+\definecolor{codebg}{HTML}{EEF3F8}
+
+\usetheme{default}
+\useinnertheme{circles}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}{%
+  \hfill{\color{gray!60}\scriptsize\insertframenumber/\inserttotalframenumber}\hspace{.6em}\vspace{.4em}}
+
+\setbeamercolor{frametitle}{bg=navy,fg=white}
+\setbeamercolor{structure}{fg=navy}
+\setbeamercolor{alerted text}{fg=gold}
+\setbeamercolor{item}{fg=gold}
+\setbeamercolor{subitem}{fg=navy}
+\setbeamercolor{block title}{bg=qblue,fg=white}
+\setbeamercolor{block body}{bg=qblue!8,fg=black}
+\setbeamercolor{block title alerted}{bg=gold,fg=navy}
+\setbeamercolor{block body alerted}{bg=gold!15,fg=navy}
+\setbeamercolor{block title example}{bg=qgreen,fg=white}
+\setbeamercolor{block body example}{bg=qgreen!10,fg=black}
+\setbeamerfont{frametitle}{size=\large,series=\bfseries}
+\setbeamerfont{block title}{series=\bfseries}
+
+\setbeamertemplate{title page}{%
+  \begin{tikzpicture}[remember picture,overlay]
+    \fill[navy](current page.north west)rectangle(current page.south east);
+    \fill[gold]([yshift=.7cm]current page.south west)rectangle(current page.south east);
+    \node[anchor=south,yshift=.73cm,navy,font=\tiny\bfseries]at(current page.south)
+      {INTENSIVÃO QUANT AI \textbullet{} IMPACT UFSCAR};
+  \end{tikzpicture}
+  \vspace{.65cm}
+  \begin{center}
+    {\color{gold}\scriptsize\bfseries INTENSIVÃO QUANT AI \textbullet{} IMPACT UFSCAR}\\[.4cm]
+    {\color{white}\LARGE\bfseries\inserttitle}\\[.25cm]
+    {\color{gold!85}\normalsize\insertsubtitle}\\[.5cm]
+    {\color{white!70}\small\insertauthor}\\[.1cm]
+    {\color{white!50}\footnotesize\insertdate}
+  \end{center}}
+
+\lstdefinestyle{python}{language=Python,
+  basicstyle=\ttfamily\scriptsize\color{qblue},
+  keywordstyle=\color{navy}\bfseries,
+  stringstyle=\color{qgreen!80!black},
+  commentstyle=\color{gray!70}\itshape,
+  backgroundcolor=\color{codebg},
+  frame=l,framerule=2pt,rulecolor=\color{gold},
+  xleftmargin=1em,breaklines=true,showstringspaces=false,tabsize=4,
+  extendedchars=false,inputencoding=ascii}
+\lstset{style=python}
+
+\author{Felipe Maldonado\\{\scriptsize VP Diretoria Quant~\textbullet{}~Impact UFSCAR}}
+\date{Intensivão Quant AI 2025}
+\title{Aula 05 --- Backtest v1}
+\subtitle{Construindo e Avaliando o Primeiro Backtest}
+
+\begin{document}
+
+\begin{frame}[plain]
+\titlepage
+\end{frame}
+
+\begin{frame}[fragile]{Nesta Aula}
+\begin{columns}[T]
+  \column{0.5\textwidth}
+\begin{block}{Teoria (30 min)}
+\begin{itemize}
+  \item Hipóteses do backtest: o que estamos testando?
+  \item Métricas de performance: Sharpe, Sortino, MDD, Calmar
+  \item O problema do look-ahead bias: shift(1)
+  \item Custos de transação: modelagem simplificada
+\end{itemize}
+\end{block}
+  \column{0.47\textwidth}
+\begin{block}{Código (70 min)}
+\begin{itemize}
+  \item \texttt{construir\_portfolio()} — top 20\%, shift(1)
+  \item \texttt{calcular\_metricas()} — todas as métricas de uma vez
+  \item Equity curve e drawdown chart
+  \item Análise de retornos por ano (heatmap)
+  \item Salvar \texttt{pesos\_v1.parquet} e \texttt{retorno\_carteira.parquet}
+\end{itemize}
+\end{block}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Métricas de Performance}
+\begin{columns}[T]
+  \column{0.5\textwidth}
+\textbf{Sharpe Ratio:}
+\[ S = \frac{\overline{r} - r_f}{\sigma_r} \times \sqrt{12} \]
+\vspace{.1em}
+\textbf{Sortino Ratio:}
+\[ \text{Sort} = \frac{\overline{r} - r_f}{\sigma_{\text{neg}}} \times \sqrt{12} \]
+$\sigma_{\text{neg}}$: desvio padrão apenas dos retornos negativos.
+\vspace{.2em}
+\textbf{Maximum Drawdown (MDD):}
+\[ \text{MDD} = \min_t \frac{V_t - \max_{s \leq t} V_s}{\max_{s \leq t} V_s} \]
+\textbf{Calmar Ratio:}
+\[ \text{Calmar} = \frac{\text{CAGR}}{|\text{MDD}|} \]
+  \column{0.47\textwidth}
+\begin{block}{Referências de Mercado}
+\begin{itemize}
+  \item Sharpe $> 1{,}0$: bom (geralmente difícil de alcançar)
+  \item Sharpe $> 0{,}5$: aceitável para long-only
+  \item MDD $< 20\%$: confortável para maioria dos mandatos
+  \item Calmar $> 0{,}5$: risco/retorno razoável
+\end{itemize}
+\end{block}\vspace{.3em}
+\begin{exampleblock}{CAGR — Retorno Anualizado}
+
+\[ \text{CAGR} = \left(\prod_{t=1}^{T}(1+r_t)\right)^{12/T} - 1 \]
+Compõe retornos mensais e anualiza pelo número de meses $T$.
+\end{exampleblock}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Estrutura do Backtest}
+\begin{columns}[T]
+  \column{0.5\textwidth}
+\textbf{Por que shift(1)?}
+\vspace{.3em}
+\begin{itemize}
+  \item Sinal calculado no \textbf{final do mês $t-1$}
+  \item Portfólio formado no \textbf{início do mês $t$}
+  \item Retorno realizado no \textbf{mês $t$}
+\end{itemize}
+\vspace{.3em}
+\begin{lstlisting}
+# ERRADO: look-ahead bias
+ret_carteira = (sinal > 0) * ret_mensais
+
+# CORRETO: shift(1) evita o bias
+pesos = construir_pesos(sinal)
+ret_carteira = (pesos.shift(1) * ret_mensais).sum(axis=1)
+\end{lstlisting}
+  \column{0.47\textwidth}
+\begin{block}{Custos de Transação}
+\begin{itemize}
+  \item Modelagem simplificada: $c = 0{,}1\%$ por operação
+  \item Turnover mensal: $\sum_i |w_{i,t} - w_{i,t-1}|$
+  \item Custo total: Turnover $\times c$
+  \item Em média: momentum tem turnover de 30--50\% a.m.
+\end{itemize}
+\end{block}\vspace{.3em}
+\begin{alertblock}{Hipóteses do backtest}
+\begin{itemize}
+  \item Execução ao preço de fechamento do mês
+  \item Liquidez infinita (sem market impact)
+  \item Sem short: long-only com equal-weight no top 20\%
+  \item Benchmark: IBOVESPA (BOVA11)
+\end{itemize}
+\end{alertblock}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{O que Vamos Construir}
+\begin{columns}[T]
+  \column{0.52\textwidth}
+\begin{block}{Funções a implementar}
+\begin{itemize}
+  \item \texttt{construir\_portfolio(sinal, ret, n\_pct=0.2)} $\to$ retornos da carteira
+  \item \texttt{calcular\_metricas(ret, rf=0.1025)} $\to$ dicionário de métricas
+  \item \texttt{exibir\_metricas(metricas)} $\to$ tabela formatada
+  \item \texttt{plot\_equity\_drawdown(ret)} $\to$ equity curve + MDD
+\end{itemize}
+\end{block}
+  \column{0.45\textwidth}
+\begin{block}{Entradas (parquets)}
+\begin{itemize}
+  \item \texttt{sinal\_v1.parquet}
+  \item \texttt{retornos\_mensais\_limpo.parquet}
+\end{itemize}
+\end{block}
+\vspace{.4em}
+\begin{exampleblock}{Saídas (parquets)}
+\begin{itemize}
+  \item \texttt{pesos\_v1.parquet}
+  \item \texttt{retorno\_carteira.parquet}
+\end{itemize}
+\end{exampleblock}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Referências}
+\begin{multicols}{2}
+\tiny
+\begin{itemize}
+  \item \textbf{Sharpe, W.} (1966). Mutual fund performance. \textit{Journal of Business}, 39(1), 119--138.
+  \item \textbf{Sortino, F. \& van der Meer, R.} (1991). Downside risk. \textit{Journal of Portfolio Management}, 17(4), 27--31.
+  \item \textbf{Jegadeesh, N. \& Titman, S.} (1993). Returns to buying winners. \textit{Journal of Finance}, 48(1), 65--91.
+  \item \textbf{Korajczyk, R. \& Sadka, R.} (2004). Are momentum profits robust to trading costs? \textit{Journal of Finance}, 59(3), 1039--1082.
+  \item \textbf{Bailey, D. \& López de Prado, M.} (2014). The deflated Sharpe ratio. \textit{JPM}, 40(5).
+\end{itemize}
+\end{multicols}
+\end{frame}
+
+
+\end{document}

@@ -1,0 +1,206 @@
+\documentclass[aspectratio=169,12pt]{beamer}
+\usepackage{fontspec}
+\usepackage[portuguese]{babel}
+\usepackage{xcolor,listings,tikz,booktabs,amsmath,amssymb,graphicx,multicol,array,colortbl}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,calc}
+
+\definecolor{navy}{HTML}{0D1B3E}
+\definecolor{gold}{HTML}{F5A623}
+\definecolor{qgreen}{HTML}{1E8B4C}
+\definecolor{qblue}{HTML}{1A6EAE}
+\definecolor{codebg}{HTML}{EEF3F8}
+
+\usetheme{default}
+\useinnertheme{circles}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}{%
+  \hfill{\color{gray!60}\scriptsize\insertframenumber/\inserttotalframenumber}\hspace{.6em}\vspace{.4em}}
+
+\setbeamercolor{frametitle}{bg=navy,fg=white}
+\setbeamercolor{structure}{fg=navy}
+\setbeamercolor{alerted text}{fg=gold}
+\setbeamercolor{item}{fg=gold}
+\setbeamercolor{subitem}{fg=navy}
+\setbeamercolor{block title}{bg=qblue,fg=white}
+\setbeamercolor{block body}{bg=qblue!8,fg=black}
+\setbeamercolor{block title alerted}{bg=gold,fg=navy}
+\setbeamercolor{block body alerted}{bg=gold!15,fg=navy}
+\setbeamercolor{block title example}{bg=qgreen,fg=white}
+\setbeamercolor{block body example}{bg=qgreen!10,fg=black}
+\setbeamerfont{frametitle}{size=\large,series=\bfseries}
+\setbeamerfont{block title}{series=\bfseries}
+
+\setbeamertemplate{title page}{%
+  \begin{tikzpicture}[remember picture,overlay]
+    \fill[navy](current page.north west)rectangle(current page.south east);
+    \fill[gold]([yshift=.7cm]current page.south west)rectangle(current page.south east);
+    \node[anchor=south,yshift=.73cm,navy,font=\tiny\bfseries]at(current page.south)
+      {INTENSIVÃO QUANT AI \textbullet{} IMPACT UFSCAR};
+  \end{tikzpicture}
+  \vspace{.65cm}
+  \begin{center}
+    {\color{gold}\scriptsize\bfseries INTENSIVÃO QUANT AI \textbullet{} IMPACT UFSCAR}\\[.4cm]
+    {\color{white}\LARGE\bfseries\inserttitle}\\[.25cm]
+    {\color{gold!85}\normalsize\insertsubtitle}\\[.5cm]
+    {\color{white!70}\small\insertauthor}\\[.1cm]
+    {\color{white!50}\footnotesize\insertdate}
+  \end{center}}
+
+\lstdefinestyle{python}{language=Python,
+  basicstyle=\ttfamily\scriptsize\color{qblue},
+  keywordstyle=\color{navy}\bfseries,
+  stringstyle=\color{qgreen!80!black},
+  commentstyle=\color{gray!70}\itshape,
+  backgroundcolor=\color{codebg},
+  frame=l,framerule=2pt,rulecolor=\color{gold},
+  xleftmargin=1em,breaklines=true,showstringspaces=false,tabsize=4,
+  extendedchars=false,inputencoding=ascii}
+\lstset{style=python}
+
+\author{Felipe Maldonado\\{\scriptsize VP Diretoria Quant~\textbullet{}~Impact UFSCAR}}
+\date{Intensivão Quant AI 2025}
+\title{Aula 06 --- Alocação}
+\subtitle{Estratégias de Alocação de Portfólio}
+
+\begin{document}
+
+\begin{frame}[plain]
+\titlepage
+\end{frame}
+
+\begin{frame}[fragile]{Nesta Aula}
+\begin{columns}[T]
+  \column{0.5\textwidth}
+\begin{block}{Teoria (30 min)}
+\begin{itemize}
+  \item Dimensões da decisão de alocação de portfólio
+  \item Equal-weight: a surpreendente robustez do 1/N
+  \item Vol-weight: alocação inversa à volatilidade (risk parity)
+  \item Markowitz na prática: problemas e soluções
+\end{itemize}
+\end{block}
+  \column{0.47\textwidth}
+\begin{block}{Código (70 min)}
+\begin{itemize}
+  \item \texttt{pesos\_equal\_weight()} — benchmark de comparação
+  \item \texttt{pesos\_vol\_weight()} — risco parity simplificado
+  \item \texttt{pesos\_markowitz()} — otimização com scipy
+  \item Comparação de turnover e Sharpe
+  \item Salvar \texttt{pesos\_v2.parquet}
+\end{itemize}
+\end{block}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Equal-Weight vs Markowitz}
+\begin{columns}[T]
+  \column{0.5\textwidth}
+\begin{block}{DeMiguel et al.\ (2009)}
+
+\textit{Optimal versus naive diversification: how inefficient is the 1/N portfolio strategy?}
+\vspace{.3em}
+\begin{itemize}
+  \item Testaram 14 modelos de otimização vs 1/N em 7 datasets
+  \item \textbf{Resultado}: 1/N vence ou empata em out-of-sample Sharpe em $\approx$90\% dos casos
+  \item Razão: erro de estimação de $\boldsymbol{\mu}$ domina o ganho teórico da otimização
+  \item Janela necessária para Markowitz vencer 1/N: $\approx$3.000 meses de dados
+\end{itemize}
+\end{block}\vspace{.3em}
+\begin{alertblock}{Implicação prática}
+Com 10 anos de dados mensais (120 obs), Markowitz é instável. \textbf{Use restrições}: long-only, cap por ativo, shrinkage de covariância.
+\end{alertblock}
+  \column{0.47\textwidth}
+
+\textbf{Problema de Markowitz:}
+\[
+\min_{\mathbf{w}}\;\mathbf{w}^\top\boldsymbol{\hat\Sigma}\mathbf{w}
+\]
+\vspace{.1em}
+\textbf{Erros se propagam:}
+\[
+\boldsymbol{\hat\Sigma} = \boldsymbol{\Sigma} + \boldsymbol{\varepsilon}_\Sigma
+\]
+$\boldsymbol{\varepsilon}_\Sigma$ introduz peso excessivo em ativos de baixa variância estimada.
+
+\vspace{.3em}
+\begin{exampleblock}{Ledoit-Wolf Shrinkage}
+$\boldsymbol{\hat\Sigma}_{\text{shrink}} = (1-\alpha)\boldsymbol{\hat\Sigma} + \alpha\,\mathbf{I}\,\bar\sigma^2$\\
+Reduz erros de estimação da matriz de covariância.
+\end{exampleblock}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Vol-Weight e Risk Parity}
+\begin{columns}[T]
+  \column{0.5\textwidth}
+\textbf{Vol-Weight (Risk Parity Simplificado):}
+\[
+w_i = \frac{1/\hat\sigma_i}{\sum_j 1/\hat\sigma_j}
+\]
+\vspace{.1em}
+\begin{itemize}
+  \item Ativos de menor volatilidade recebem maior peso
+  \item Sem estimação de retornos esperados: evita o principal source de erro
+  \item Rolling 60 dias: estável, reativo a mudanças de regime
+  \item Turnover: menor que Markowitz, maior que EW
+\end{itemize}
+  \column{0.47\textwidth}
+\begin{block}{Comparação das Estratégias}
+\begin{itemize}
+  \item \textbf{Equal-weight}: simples, baixo turnover, baseline forte
+  \item \textbf{Vol-weight}: melhor ajuste a risco, fundamento em risk parity
+  \item \textbf{Markowitz}: teoricamente ótimo, instável na prática
+  \item \textbf{Usaremos}: vol-weight como pesos\_v2
+\end{itemize}
+\end{block}\vspace{.3em}
+\begin{exampleblock}{Referência Histórica}
+
+Bridgewater All Weather (Ray Dalio) usa risk parity como filosofia central — alocar risco igualmente entre classes de ativos, não capital.
+\end{exampleblock}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{O que Vamos Construir}
+\begin{columns}[T]
+  \column{0.52\textwidth}
+\begin{block}{Funções a implementar}
+\begin{itemize}
+  \item \texttt{pesos\_equal\_weight(sinal)} $\to$ DataFrame de pesos iguais
+  \item \texttt{pesos\_vol\_weight(sinal, ret\_diarios)} $\to$ pesos inversos à vol
+  \item \texttt{pesos\_markowitz(sinal, ret\_mensais)} $\to$ pesos otimizados
+  \item \texttt{calcular\_turnover(pesos)} $\to$ Series de turnover mensal
+\end{itemize}
+\end{block}
+  \column{0.45\textwidth}
+\begin{block}{Entradas (parquets)}
+\begin{itemize}
+  \item \texttt{sinal\_v1.parquet}
+  \item \texttt{retornos\_diarios\_limpo.parquet}
+  \item \texttt{retornos\_mensais\_limpo.parquet}
+\end{itemize}
+\end{block}
+\vspace{.4em}
+\begin{exampleblock}{Saídas (parquets)}
+\begin{itemize}
+  \item \texttt{pesos\_v2.parquet} (vol-weight)
+  \item Tabela comparativa de Sharpe e turnover
+\end{itemize}
+\end{exampleblock}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Referências}
+\begin{multicols}{2}
+\tiny
+\begin{itemize}
+  \item \textbf{Markowitz, H.} (1952). Portfolio Selection. \textit{Journal of Finance}, 7(1), 77--91.
+  \item \textbf{DeMiguel, V. et al.} (2009). Optimal versus naive diversification. \textit{Review of Financial Studies}, 22(5), 1915--1953.
+  \item \textbf{Ledoit, O. \& Wolf, M.} (2004). A well-conditioned estimator for large-dimensional covariance matrices. \textit{Journal of Multivariate Analysis}, 88(2), 365--411.
+  \item \textbf{Maillard, S. et al.} (2010). The properties of equally weighted risk contributions portfolios. \textit{JPM}, 36(4), 60--70.
+  \item \textbf{Michaud, R.} (1989). The Markowitz optimization enigma: is optimized optimal? \textit{FAJ}, 45(1), 31--42.
+\end{itemize}
+\end{multicols}
+\end{frame}
+
+
+\end{document}

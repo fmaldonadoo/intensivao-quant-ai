@@ -1,0 +1,201 @@
+\documentclass[aspectratio=169,12pt]{beamer}
+\usepackage{fontspec}
+\usepackage[portuguese]{babel}
+\usepackage{xcolor,listings,tikz,booktabs,amsmath,amssymb,graphicx,multicol,array,colortbl}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,calc}
+
+\definecolor{navy}{HTML}{0D1B3E}
+\definecolor{gold}{HTML}{F5A623}
+\definecolor{qgreen}{HTML}{1E8B4C}
+\definecolor{qblue}{HTML}{1A6EAE}
+\definecolor{codebg}{HTML}{EEF3F8}
+
+\usetheme{default}
+\useinnertheme{circles}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}{%
+  \hfill{\color{gray!60}\scriptsize\insertframenumber/\inserttotalframenumber}\hspace{.6em}\vspace{.4em}}
+
+\setbeamercolor{frametitle}{bg=navy,fg=white}
+\setbeamercolor{structure}{fg=navy}
+\setbeamercolor{alerted text}{fg=gold}
+\setbeamercolor{item}{fg=gold}
+\setbeamercolor{subitem}{fg=navy}
+\setbeamercolor{block title}{bg=qblue,fg=white}
+\setbeamercolor{block body}{bg=qblue!8,fg=black}
+\setbeamercolor{block title alerted}{bg=gold,fg=navy}
+\setbeamercolor{block body alerted}{bg=gold!15,fg=navy}
+\setbeamercolor{block title example}{bg=qgreen,fg=white}
+\setbeamercolor{block body example}{bg=qgreen!10,fg=black}
+\setbeamerfont{frametitle}{size=\large,series=\bfseries}
+\setbeamerfont{block title}{series=\bfseries}
+
+\setbeamertemplate{title page}{%
+  \begin{tikzpicture}[remember picture,overlay]
+    \fill[navy](current page.north west)rectangle(current page.south east);
+    \fill[gold]([yshift=.7cm]current page.south west)rectangle(current page.south east);
+    \node[anchor=south,yshift=.73cm,navy,font=\tiny\bfseries]at(current page.south)
+      {INTENSIVÃO QUANT AI \textbullet{} IMPACT UFSCAR};
+  \end{tikzpicture}
+  \vspace{.65cm}
+  \begin{center}
+    {\color{gold}\scriptsize\bfseries INTENSIVÃO QUANT AI \textbullet{} IMPACT UFSCAR}\\[.4cm]
+    {\color{white}\LARGE\bfseries\inserttitle}\\[.25cm]
+    {\color{gold!85}\normalsize\insertsubtitle}\\[.5cm]
+    {\color{white!70}\small\insertauthor}\\[.1cm]
+    {\color{white!50}\footnotesize\insertdate}
+  \end{center}}
+
+\lstdefinestyle{python}{language=Python,
+  basicstyle=\ttfamily\scriptsize\color{qblue},
+  keywordstyle=\color{navy}\bfseries,
+  stringstyle=\color{qgreen!80!black},
+  commentstyle=\color{gray!70}\itshape,
+  backgroundcolor=\color{codebg},
+  frame=l,framerule=2pt,rulecolor=\color{gold},
+  xleftmargin=1em,breaklines=true,showstringspaces=false,tabsize=4,
+  extendedchars=false,inputencoding=ascii}
+\lstset{style=python}
+
+\author{Felipe Maldonado\\{\scriptsize VP Diretoria Quant~\textbullet{}~Impact UFSCAR}}
+\date{Intensivão Quant AI 2025}
+\title{Aula 03 --- EDA}
+\subtitle{Análise Exploratória de Dados Financeiros}
+
+\begin{document}
+
+\begin{frame}[plain]
+\titlepage
+\end{frame}
+
+\begin{frame}[fragile]{Nesta Aula}
+\begin{columns}[T]
+  \column{0.5\textwidth}
+\begin{block}{Teoria (30 min)}
+\begin{itemize}
+  \item Distribuições de retorno: normalidade vs fat tails
+  \item Skewness, kurtosis e o Teorema do Limite Central
+  \item Correlações: estáticas e rolling
+  \item Estacionaridade e o teste ADF
+\end{itemize}
+\end{block}
+  \column{0.47\textwidth}
+\begin{block}{Código (70 min)}
+\begin{itemize}
+  \item Histograma + QQ-plot para diagnóstico de normalidade
+  \item Scatter risk-return por ativo
+  \item Heatmap de correlação com clusterização
+  \item Correlação rolling de 12 meses
+  \item Teste ADF: quais ativos são estacionários?
+\end{itemize}
+\end{block}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Distribuição de Retornos Financeiros}
+\begin{columns}[T]
+  \column{0.5\textwidth}
+
+\textbf{Hipótese Normal (incorreta):}
+\[ r_t \sim \mathcal{N}(\mu, \sigma^2) \]
+
+\textbf{Realidade empírica:}
+\begin{itemize}
+  \item \textbf{Kurtosis} $> 3$: caudas mais pesadas que Normal
+  \item \textbf{Skewness} $\neq 0$: assimetria, geralmente negativa
+  \item \textbf{Autocorrelação} de $r_t$: próxima de zero
+  \item \textbf{Autocorrelação} de $|r_t|$: positiva (volatility clustering)
+\end{itemize}
+\vspace{.3em}
+\begin{alertblock}{Implicação para risco}
+VaR e CVaR calculados com Normal \textbf{subestimam} eventos extremos.
+Distribuições: $t$-Student, GED, misturas de normais.
+\end{alertblock}
+  \column{0.47\textwidth}
+\begin{block}{Stylized Facts (Cont, 2001)}
+\begin{itemize}
+  \item Heavy tails: kurtosis $\approx$ 4--10 em ações
+  \item Gain/Loss Asymmetry: quedas mais abruptas que altas
+  \item Volatility Clustering: $|\varepsilon_t|$ correlacionado
+  \item Leverage Effect: $\text{Corr}(r_t, \sigma_{t+k}^2) < 0$
+  \item Long memory em volatilidade (GARCH)
+\end{itemize}
+\end{block}\vspace{.3em}
+\begin{exampleblock}{QQ-Plot}
+Quantis empíricos vs Normal: pontos nas caudas \textbf{acima} da linha $\Rightarrow$ fat tails.
+\end{exampleblock}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Correlações e Estacionaridade}
+\begin{columns}[T]
+  \column{0.5\textwidth}
+\begin{block}{Matriz de Correlação}
+\begin{itemize}
+  \item Correlações cross-sectional: como os ativos se movem juntos
+  \item Hierarquical clustering: agrupa setores similares
+  \item Em crises: correlações convergem para 1 (diversificação falha)
+  \item Rolling 12m: evolução temporal das relações
+\end{itemize}
+\end{block}\vspace{.3em}
+\begin{alertblock}{Correlação Espúria}
+Séries não-estacionárias têm alta correlação por tendência compartilhada — não por relação causal.
+\end{alertblock}
+  \column{0.47\textwidth}
+\begin{block}{Teste ADF}
+\begin{itemize}
+  \item $H_0$: série tem raiz unitária (não-estacionária)
+  \item $H_1$: série é estacionária
+  \item Retornos $r_t$: geralmente estacionários ($p < 0{,}05$)
+  \item Preços $P_t$: geralmente não-estacionários (random walk)
+\end{itemize}
+\end{block}\vspace{.3em}
+\begin{exampleblock}{Por que importa?}
+Modelos de regressão em séries não-estacionárias produzem regressão espúria. Sempre transforme preços em retornos antes de modelar.
+\end{exampleblock}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{O que Vamos Construir}
+\begin{columns}[T]
+  \column{0.52\textwidth}
+\begin{block}{Funções a implementar}
+\begin{itemize}
+  \item \texttt{plot\_histograma\_qqplot(ret)} $\to$ diagnóstico de normalidade
+  \item \texttt{plot\_risk\_return(ret)} $\to$ scatter por ativo
+  \item \texttt{plot\_heatmap\_correlacao(ret)} $\to$ matriz com cluster
+  \item \texttt{plot\_rolling\_corr(ret, janela=12)} $\to$ evolução temporal
+  \item \texttt{testar\_estacionaridade(ret)} $\to$ ADF por ativo
+\end{itemize}
+\end{block}
+  \column{0.45\textwidth}
+\begin{block}{Entradas (parquets)}
+\begin{itemize}
+  \item \texttt{retornos\_mensais\_limpo.parquet}
+  \item \texttt{retornos\_diarios\_limpo.parquet}
+\end{itemize}
+\end{block}
+\vspace{.4em}
+\begin{exampleblock}{Saídas (parquets)}
+\begin{itemize}
+  \item Gráficos PNG para o relatório
+  \item DataFrame com p-valores do ADF
+\end{itemize}
+\end{exampleblock}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Referências}
+\begin{multicols}{2}
+\tiny
+\begin{itemize}
+  \item \textbf{Cont, R.} (2001). Empirical properties of asset returns. \textit{Quantitative Finance}, 1(2), 223--236.
+  \item \textbf{Mandelbrot, B.} (1963). The variation of certain speculative prices. \textit{Journal of Business}, 36(4), 394--419.
+  \item \textbf{Engle, R.} (1982). Autoregressive conditional heteroscedasticity. \textit{Econometrica}, 50(4), 987--1007.
+  \item \textbf{Dickey, D. \& Fuller, W.} (1979). Distribution of the estimators for autoregressive time series. \textit{JASA}, 74(366), 427--431.
+\end{itemize}
+\end{multicols}
+\end{frame}
+
+
+\end{document}

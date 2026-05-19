@@ -27,3 +27,14 @@ Thumbs.db
 
 # Outputs temporários
 *.log
+
+# LaTeX auxiliares (gerados automaticamente pela compilação)
+*.aux
+*.nav
+*.out
+*.snm
+*.toc
+*.vrb
+*.fls
+*.fdb_latexmk
+*.synctex.gz
