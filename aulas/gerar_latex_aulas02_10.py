@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Gera slides LaTeX Beamer para Aulas 02–10 do Intensivão Quant AI.
+"""Gera slides LaTeX Beamer para Aulas 02–09 do Intensivão Quant AI.
 Compilar: lualatex slides-aula-XX-nome.tex  (rodar 2x)
 """
 import os
@@ -70,7 +70,7 @@ def pre(title, subtitle):
 \lstset{style=python}
 
 \author{Felipe Maldonado\\{\scriptsize VP Diretoria Quant~\textbullet{}~Impact UFSCAR}}
-\date{Intensivão Quant AI 2025}
+\date{Intensivão Quant AI 2026}
 """
     return base + "\\title{" + title + "}\n\\subtitle{" + subtitle + "}\n"
 
@@ -139,12 +139,12 @@ def aula02():
     frames = "\\begin{frame}[plain]\n\\titlepage\n\\end{frame}\n\n"
 
     frames += fr("Nesta Aula", cols(
-        blk("Teoria (30 min)", its(
+        blk("Teoria (20 min)", its(
             "O universo IBOVESPA: composição e rebalanceamento",
             "Pipeline de dados: da fonte ao parquet",
             "Tratamento de outliers e dados faltantes",
             "Retornos compostos vs simples")),
-        blk("Código (70 min)", its(
+        blk("Código (40 min)", its(
             r"\texttt{baixar\_dados()} — yfinance $\to$ DataFrame",
             r"\texttt{limpar\_precos()} — outliers, forward-fill",
             r"\texttt{calcular\_retornos\_mensais()} — resample + log-ret",
@@ -157,7 +157,7 @@ def aula02():
             r"Critério de inclusão: liquidez (VDLA $\geq$ 0{,}1\% do total)",
             "Rebalanceamento: janeiro, maio e setembro",
             "Composição histórica obtida via yfinance",
-            r"Período de análise: 2015--2024 (120 meses)"),
+            r"Período de análise: 2012--2024 (12 anos)"),
         blk("Por que o IBOVESPA?", its(
             "Universo amplo o suficiente para cross-section",
             "Dados históricos de qualidade disponíveis",
@@ -228,12 +228,12 @@ def aula03():
     frames = "\\begin{frame}[plain]\n\\titlepage\n\\end{frame}\n\n"
 
     frames += fr("Nesta Aula", cols(
-        blk("Teoria (30 min)", its(
+        blk("Teoria (20 min)", its(
             "Distribuições de retorno: normalidade vs fat tails",
             "Skewness, kurtosis e o Teorema do Limite Central",
             "Correlações: estáticas e rolling",
             "Estacionaridade e o teste ADF")),
-        blk("Código (70 min)", its(
+        blk("Código (40 min)", its(
             "Histograma + QQ-plot para diagnóstico de normalidade",
             "Scatter risk-return por ativo",
             "Heatmap de correlação com clusterização",
@@ -314,12 +314,12 @@ def aula04():
     frames = "\\begin{frame}[plain]\n\\titlepage\n\\end{frame}\n\n"
 
     frames += fr("Nesta Aula", cols(
-        blk("Teoria (30 min)", its(
+        blk("Teoria (20 min)", its(
             "O pipeline quant de geração de alfa",
             "Anatomia do sinal 12-1 de momentum",
             "Information Coefficient (IC): o que é e por que importa",
             "IC ratio e IR: avaliando poder preditivo")),
-        blk("Código (70 min)", its(
+        blk("Código (40 min)", its(
             r"\texttt{calcular\_sinal\_v1()} — implementação do sinal 12-1",
             "Ranking cross-sectional mensal",
             r"\texttt{calcular\_ic\_serie()} — Spearman mês a mês",
@@ -351,7 +351,7 @@ ret.shift(2).rolling(11).sum()
         "\\vspace{.3em}\n" +
         blk("Ranking Cross-Sectional", r"""
 Cada mês $t$: ranquear todos os ativos pelo sinal.\\
-Comprar \textbf{top 20\%} (quintil superior).\\
+Comprar \textbf{top 10\%} (quintil superior).\\
 Portfólio long-only, equal-weight entre selecionados.""")
     ))
 
@@ -410,13 +410,13 @@ def aula05():
     frames = "\\begin{frame}[plain]\n\\titlepage\n\\end{frame}\n\n"
 
     frames += fr("Nesta Aula", cols(
-        blk("Teoria (30 min)", its(
+        blk("Teoria (20 min)", its(
             "Hipóteses do backtest: o que estamos testando?",
             "Métricas de performance: Sharpe, Sortino, MDD, Calmar",
             "O problema do look-ahead bias: shift(1)",
-            "Custos de transação: modelagem simplificada")),
-        blk("Código (70 min)", its(
-            r"\texttt{construir\_portfolio()} — top 20\%, shift(1)",
+            "A importância de usar pesos realistas")),
+        blk("Código (40 min)", its(
+            r"\texttt{construir\_portfolio()} — top 10\%, weights.shift(1)",
             r"\texttt{calcular\_metricas()} — todas as métricas de uma vez",
             "Equity curve e drawdown chart",
             "Análise de retornos por ano (heatmap)",
@@ -436,10 +436,10 @@ $\sigma_{\text{neg}}$: desvio padrão apenas dos retornos negativos.
 \textbf{Calmar Ratio:}
 \[ \text{Calmar} = \frac{\text{CAGR}}{|\text{MDD}|} \]""",
         blk("Referências de Mercado", its(
-            r"Sharpe $> 1{,}0$: bom (geralmente difícil de alcançar)",
-            r"Sharpe $> 0{,}5$: aceitável para long-only",
-            r"MDD $< 20\%$: confortável para maioria dos mandatos",
-            r"Calmar $> 0{,}5$: risco/retorno razoável")) +
+            r"Sharpe $> 1{,}0$: excelente (difícil na realidade brasileira)",
+            r"Sharpe $> 0{,}5$: bom para estratégias long-only no IBOV",
+            r"MDD $< 20\%$: confortável para a maioria das gestoras",
+            r"Calmar $> 0{,}5$: relação risco/retorno aceitável")) +
         "\\vspace{.3em}\n" +
         blk("CAGR — Retorno Anualizado", r"""
 \[ \text{CAGR} = \left(\prod_{t=1}^{T}(1+r_t)\right)^{12/T} - 1 \]
@@ -463,21 +463,15 @@ ret_carteira = (sinal > 0) * ret_mensais
 pesos = construir_pesos(sinal)
 ret_carteira = (pesos.shift(1) * ret_mensais).sum(axis=1)
 \end{lstlisting}""",
-        blk("Custos de Transação", its(
-            r"Modelagem simplificada: $c = 0{,}1\%$ por operação",
-            r"Turnover mensal: $\sum_i |w_{i,t} - w_{i,t-1}|$",
-            r"Custo total: Turnover $\times c$",
-            r"Em média: momentum tem turnover de 30--50\% a.m.")) +
-        "\\vspace{.3em}\n" +
         blk("Hipóteses do backtest", its(
             "Execução ao preço de fechamento do mês",
-            "Liquidez infinita (sem market impact)",
-            "Sem short: long-only com equal-weight no top 20\\%",
+            "Liquidez infinita (sem market impact inicial)",
+            "Sem short: long-only com equal-weight no top 10\\%",
             "Benchmark: IBOVESPA (BOVA11)"), "alerted")
     ))
 
     frames += fr("O que Vamos Construir", construir(
-        [r"\texttt{construir\_portfolio(sinal, ret, n\_pct=0.2)} $\to$ retornos da carteira",
+        [r"\texttt{construir\_portfolio(sinal, ret, n\_pct=0.1)} $\to$ retornos da carteira",
          r"\texttt{calcular\_metricas(ret, rf=0.1025)} $\to$ dicionário de métricas",
          r"\texttt{exibir\_metricas(metricas)} $\to$ tabela formatada",
          r"\texttt{plot\_equity\_drawdown(ret)} $\to$ equity curve + MDD"],
@@ -491,7 +485,6 @@ ret_carteira = (pesos.shift(1) * ret_mensais).sum(axis=1)
         r"\textbf{Sharpe, W.} (1966). Mutual fund performance. \textit{Journal of Business}, 39(1), 119--138.",
         r"\textbf{Sortino, F. \& van der Meer, R.} (1991). Downside risk. \textit{Journal of Portfolio Management}, 17(4), 27--31.",
         r"\textbf{Jegadeesh, N. \& Titman, S.} (1993). Returns to buying winners. \textit{Journal of Finance}, 48(1), 65--91.",
-        r"\textbf{Korajczyk, R. \& Sadka, R.} (2004). Are momentum profits robust to trading costs? \textit{Journal of Finance}, 59(3), 1039--1082.",
         r"\textbf{Bailey, D. \& López de Prado, M.} (2014). The deflated Sharpe ratio. \textit{JPM}, 40(5)."
     ))
 
@@ -499,23 +492,23 @@ ret_carteira = (pesos.shift(1) * ret_mensais).sum(axis=1)
     save(doc(p, frames), "aula-05-backtest-v1", "slides-aula-05-backtest-v1.tex")
 
 
-# ── Aula 06 — Alocação ───────────────────────────────────────────────────────
+# ── Aula 06 — Alocação — Markowitz ───────────────────────────────────────────
 
 def aula06():
     frames = "\\begin{frame}[plain]\n\\titlepage\n\\end{frame}\n\n"
 
     frames += fr("Nesta Aula", cols(
-        blk("Teoria (30 min)", its(
-            "Dimensões da decisão de alocação de portfólio",
-            "Equal-weight: a surpreendente robustez do 1/N",
-            "Vol-weight: alocação inversa à volatilidade (risk parity)",
-            "Markowitz na prática: problemas e soluções")),
-        blk("Código (70 min)", its(
-            r"\texttt{pesos\_equal\_weight()} — benchmark de comparação",
-            r"\texttt{pesos\_vol\_weight()} — risco parity simplificado",
-            r"\texttt{pesos\_markowitz()} — otimização com scipy",
-            "Comparação de turnover e Sharpe",
-            r"Salvar \texttt{pesos\_v2.parquet}"))
+        blk("Teoria (20 min)", its(
+            "Teoria Moderna de Portfólio (Markowitz 1952)",
+            "O trade-off risco-retorno e fronteira eficiente",
+            "Por que a otimização de Markowitz clássica é instável na prática",
+            "A importância de restrições rígidas (long-only, caps)")),
+        blk("Código (40 min)", its(
+            r"\texttt{pesos\_equal\_weight()} — robustez do benchmark 1/N",
+            r"\texttt{pesos\_markowitz()} — otimização com scipy.optimize",
+            "Configurar função objetivo (max Sharpe) e restrições",
+            "Comparação de turnover e Sharpe de Markowitz vs. EW",
+            r"Salvar \texttt{pesos\_markowitz.parquet}"))
     ))
 
     frames += fr("Equal-Weight vs Markowitz", cols(
@@ -523,75 +516,48 @@ def aula06():
 \textit{Optimal versus naive diversification: how inefficient is the 1/N portfolio strategy?}
 \vspace{.3em}
 \begin{itemize}
-  \item Testaram 14 modelos de otimização vs 1/N em 7 datasets
-  \item \textbf{Resultado}: 1/N vence ou empata em out-of-sample Sharpe em $\approx$90\% dos casos
-  \item Razão: erro de estimação de $\boldsymbol{\mu}$ domina o ganho teórico da otimização
-  \item Janela necessária para Markowitz vencer 1/N: $\approx$3.000 meses de dados
+  \item O portfólio 1/N (Equal-Weight) é um benchmark fortíssimo
+  \item Otimização clássica sofre com erro de estimação dos parâmetros ($\boldsymbol{\mu}, \boldsymbol{\Sigma}$)
+  \item Sem restrições, Markowitz gera pesos extremos e instáveis out-of-sample
+  \item Solução prática: impor restrições long-only e limites máximos por ativo (caps)
 \end{itemize}""") +
         "\\vspace{.3em}\n" +
-        blk("Implicação prática", r"Com 10 anos de dados mensais (120 obs), Markowitz é instável. \textbf{Use restrições}: long-only, cap por ativo, shrinkage de covariância.", "alerted"),
+        blk("Restrições no scipy.optimize", r"Impedir short selling ($w_i \in [0, 0.20]$) e forçar a soma dos pesos a ser exatamente $1$. Isso estabiliza os pesos.", "alerted"),
         r"""
-\textbf{Problema de Markowitz:}
+\textbf{Problema de Markowitz (Sharpe Máx.):}
 \[
-\min_{\mathbf{w}}\;\mathbf{w}^\top\boldsymbol{\hat\Sigma}\mathbf{w}
+\max_{\mathbf{w}}\; \frac{\mathbf{w}^\top\boldsymbol{\mu} - r_f}{\sqrt{\mathbf{w}^\top\boldsymbol{\Sigma}\mathbf{w}}}
 \]
 \vspace{.1em}
-\textbf{Erros se propagam:}
+\textbf{Com as Restrições:}
 \[
-\boldsymbol{\hat\Sigma} = \boldsymbol{\Sigma} + \boldsymbol{\varepsilon}_\Sigma
+\sum_{i=1}^N w_i = 1 \quad \text{e} \quad 0 \leq w_i \leq 0{,}20
 \]
-$\boldsymbol{\varepsilon}_\Sigma$ introduz peso excessivo em ativos de baixa variância estimada.
 
 \vspace{.3em}
-\begin{exampleblock}{Ledoit-Wolf Shrinkage}
-$\boldsymbol{\hat\Sigma}_{\text{shrink}} = (1-\alpha)\boldsymbol{\hat\Sigma} + \alpha\,\mathbf{I}\,\bar\sigma^2$\\
-Reduz erros de estimação da matriz de covariância.
+\begin{exampleblock}{Estimativa de Risco}
+Usamos a matriz de covariância histórica dos retornos mensais do portfólio selecionado para a otimização.
 \end{exampleblock}"""
-    ))
-
-    frames += fr("Vol-Weight e Risk Parity", cols(
-        r"""\textbf{Vol-Weight (Risk Parity Simplificado):}
-\[
-w_i = \frac{1/\hat\sigma_i}{\sum_j 1/\hat\sigma_j}
-\]
-\vspace{.1em}
-\begin{itemize}
-  \item Ativos de menor volatilidade recebem maior peso
-  \item Sem estimação de retornos esperados: evita o principal source de erro
-  \item Rolling 60 dias: estável, reativo a mudanças de regime
-  \item Turnover: menor que Markowitz, maior que EW
-\end{itemize}""",
-        blk("Comparação das Estratégias", its(
-            r"\textbf{Equal-weight}: simples, baixo turnover, baseline forte",
-            r"\textbf{Vol-weight}: melhor ajuste a risco, fundamento em risk parity",
-            r"\textbf{Markowitz}: teoricamente ótimo, instável na prática",
-            r"\textbf{Usaremos}: vol-weight como pesos\_v2")) +
-        "\\vspace{.3em}\n" +
-        blk("Referência Histórica", r"""
-Bridgewater All Weather (Ray Dalio) usa risk parity como filosofia central — alocar risco igualmente entre classes de ativos, não capital.""", "example")
     ))
 
     frames += fr("O que Vamos Construir", construir(
         [r"\texttt{pesos\_equal\_weight(sinal)} $\to$ DataFrame de pesos iguais",
-         r"\texttt{pesos\_vol\_weight(sinal, ret\_diarios)} $\to$ pesos inversos à vol",
-         r"\texttt{pesos\_markowitz(sinal, ret\_mensais)} $\to$ pesos otimizados",
+         r"\texttt{pesos\_markowitz(sinal, ret\_mensais)} $\to$ pesos otimizados (Sharpe Máx.)",
          r"\texttt{calcular\_turnover(pesos)} $\to$ Series de turnover mensal"],
         [r"\texttt{sinal\_v1.parquet}",
-         r"\texttt{retornos\_diarios\_limpo.parquet}",
          r"\texttt{retornos\_mensais\_limpo.parquet}"],
-        [r"\texttt{pesos\_v2.parquet} (vol-weight)",
-         "Tabela comparativa de Sharpe e turnover"]
+        [r"\texttt{pesos\_markowitz.parquet}",
+         "Tabela comparativa de Sharpe e turnover: Markowitz vs EW"]
     ))
 
     frames += fr("Referências", refs(
         r"\textbf{Markowitz, H.} (1952). Portfolio Selection. \textit{Journal of Finance}, 7(1), 77--91.",
         r"\textbf{DeMiguel, V. et al.} (2009). Optimal versus naive diversification. \textit{Review of Financial Studies}, 22(5), 1915--1953.",
-        r"\textbf{Ledoit, O. \& Wolf, M.} (2004). A well-conditioned estimator for large-dimensional covariance matrices. \textit{Journal of Multivariate Analysis}, 88(2), 365--411.",
-        r"\textbf{Maillard, S. et al.} (2010). The properties of equally weighted risk contributions portfolios. \textit{JPM}, 36(4), 60--70.",
+        r"\textbf{Ledoit, O. \& Wolf, M.} (2004). Honey, I shrunk the covariance matrix. \textit{JPM}.",
         r"\textbf{Michaud, R.} (1989). The Markowitz optimization enigma: is optimized optimal? \textit{FAJ}, 45(1), 31--42."
     ))
 
-    p = pre("Aula 06 --- Alocação", "Estratégias de Alocação de Portfólio")
+    p = pre("Aula 06 --- Alocação", "Alocação Clássica vs Otimizada (Markowitz)")
     save(doc(p, frames), "aula-06-alocacao", "slides-aula-06-alocacao.tex")
 
 
@@ -601,34 +567,32 @@ def aula07():
     frames = "\\begin{frame}[plain]\n\\titlepage\n\\end{frame}\n\n"
 
     frames += fr("Nesta Aula", cols(
-        blk("Teoria (30 min)", its(
+        blk("Teoria (20 min)", its(
             "Limitação crítica do sinal v1: momentum crash",
             "Vol-adjusted momentum: Moskowitz, Ooi \\& Pedersen (2012)",
-            "Comparação fair entre sinais: IC médio e Sharpe OOS",
-            "Quando o ajuste de volatilidade ajuda (e quando não)")),
-        blk("Código (70 min)", its(
-            r"\texttt{calcular\_vol\_rolling(ret, janela=63)} — vol diária rolling",
-            r"\texttt{calcular\_sinal\_v2(sinal\_v1, vol)} — sinal normalizado",
-            "Comparação de IC: v1 vs v2 (bar chart)",
+            "Comparação justa entre sinais: IC médio e Sharpe",
+            "Por que normalizar por volatilidade reduz tail risk")),
+        blk("Código (40 min)", its(
+            r"\texttt{calcular\_vol\_rolling()} — volatilidade de 63 dias úteis",
+            r"\texttt{calcular\_sinal\_v2()} — normalização do sinal pela vol",
+            "Comparação de IC: v1 vs v2 (rolling e médio)",
             "Backtest comparativo: equity curves lado a lado",
-            r"Salvar \texttt{sinal\_v2.parquet} e \texttt{pesos\_v2\_final.parquet}"))
+            r"Salvar \texttt{sinal\_v2.parquet}"))
     ))
 
     frames += fr("Limitação do Sinal v1 — Momentum Crash", cols(
-        r"""\textbf{Problema identificado por Daniel \& Moskowitz (2016):}
+        r"""\textbf{O fenômeno do Momentum Crash:}
 \vspace{.3em}
 \begin{itemize}
-  \item Em crises de mercado (2008, 2020), os ``vencedores'' do sinal v1 são tipicamente ativos de \textbf{alta beta}
-  \item No crash, estes ativos caem mais que o mercado
-  \item O sinal de momentum ``captura'' um risco de mercado latente
-  \item Resultado: drawdown de 40--60\% em crises severas
+  \item Em pânicos de mercado, o momentum seleciona ações de \textbf{alto beta} (que caíram muito ou subiram muito de forma volátil)
+  \item Na recuperação pós-crise, os perdedores de alto beta disparam, e os \"vencedores\" defensivos sobem menos ou caem
+  \item Momentum v1 sofre perdas severas em viradas rápidas de regime (drawdowns de 40-60\%)
 \end{itemize}
 \vspace{.3em}
-\begin{alertblock}{Sinal 12-1 sem ajuste de vol}
-  Compra ativos de alto retorno recente $\approx$ compra ativos de alta vol/beta.
-  Em crises, isso amplifica as perdas.
+\begin{alertblock}{Solução de Normalização}
+  Dividir o sinal pela volatilidade rolling de 63 dias úteis remove o viés de alto beta e estabiliza a exposição ao fator de momentum.
 \end{alertblock}""",
-        blk("Solução: Vol-Adjustment", r"""
+        blk("Vol-Adjustment", r"""
 \textbf{Moskowitz, Ooi \& Pedersen (2012):}
 \[
 \text{Sinal}^{v2}_{i,t} = \frac{\text{Sinal}^{v1}_{i,t}}{\hat\sigma_{i,t}}
@@ -638,62 +602,32 @@ $\hat\sigma_{i,t}$: volatilidade rolling dos últimos 63 dias úteis.
 \begin{itemize}
   \item Normaliza o sinal pela volatilidade corrente
   \item Ativos mais voláteis recebem sinal ``deflacionado''
-  \item Melhora IC e reduz tail risk
-  \item Alinha com risk parity dos pesos
+  \item Melhora substancial do IC ajustado a risco
 \end{itemize}""") +
         "\\vspace{.3em}\n" +
-        blk("Evidência", r"Moskowitz et al.\ documentam melhora de Sharpe em ações, bonds, commodities e moedas.", "example")
-    ))
-
-    frames += fr("Comparação Fair: v1 vs v2", cols(
-        r"""\textbf{Protocolo de comparação:}
-\begin{enumerate}
-  \item Mesmo universo de ativos
-  \item Mesmo período de análise
-  \item Mesma regra de portfólio (top 20\%, equal-weight)
-  \item Mesma modelagem de custos (turnover $\times$ 0{,}1\%)
-\end{enumerate}
-\vspace{.3em}
-\textbf{Métricas de comparação:}
-\begin{itemize}
-  \item IC médio: poder preditivo bruto do sinal
-  \item Sharpe ratio do portfólio
-  \item Maximum drawdown
-  \item Correlation entre sinal v1 e v2: quanto diferem?
-\end{itemize}""",
-        blk("Quando v2 ajuda?", its(
-            r"Ambientes de alta volatilidade (crises, pandemia)",
-            r"Quando os ``vencedores'' são concentrados em setores de alto beta",
-            r"Quando há momentum crash latente (beta do portfólio > 1{,}2)")) +
-        "\\vspace{.3em}\n" +
-        blk("Quando v2 não ajuda?", its(
-            r"Mercados trending com baixa dispersão de vol",
-            r"Quando todos os ativos têm vol similar (correlação alta)",
-            r"Períodos de vol muito baixa — normalização é instável"), "alerted")
+        blk("Evidência", r"Moskowitz et al.\ documentam melhora robusta de Sharpe em múltiplas classes de ativos.", "example")
     ))
 
     frames += fr("O que Vamos Construir", construir(
-        [r"\texttt{calcular\_vol\_rolling(ret\_diarios, janela=63)} $\to$ vol mensal estimada",
-         r"\texttt{alinhar\_vol\_com\_sinal(vol, sinal)} $\to$ vol no mesmo index",
+        [r"\texttt{calcular\_vol\_rolling(ret\_diarios, janela=63)} $\to$ vol rolling diária",
          r"\texttt{calcular\_sinal\_v2(sinal\_v1, vol)} $\to$ sinal normalizado",
-         r"\texttt{comparar\_ic(sinal\_v1, sinal\_v2, ret)} $\to$ DataFrame comparativo"],
+         r"\texttt{comparar\_ic(sinal\_v1, sinal\_v2, ret)} $\to$ DataFrame de Spearman IC"],
         [r"\texttt{sinal\_v1.parquet}",
          r"\texttt{retornos\_diarios\_limpo.parquet}",
          r"\texttt{retornos\_mensais\_limpo.parquet}"],
         [r"\texttt{sinal\_v2.parquet}",
          r"\texttt{pesos\_v2.parquet}",
-         "Gráfico comparativo IS v1 vs v2"]
+         "Gráfico comparativo de performance v1 vs v2"]
     ))
 
     frames += fr("Referências", refs(
         r"\textbf{Moskowitz, T., Ooi, Y. \& Pedersen, L.} (2012). Time series momentum. \textit{Journal of Financial Economics}, 104(2), 228--250.",
         r"\textbf{Daniel, K. \& Moskowitz, T.} (2016). Momentum crashes. \textit{JFE}, 122(2), 221--247.",
         r"\textbf{Barroso, P. \& Santa-Clara, P.} (2015). Momentum has its moments. \textit{JFE}, 116(1), 111--120.",
-        r"\textbf{Jegadeesh, N. \& Titman, S.} (1993). Returns to buying winners. \textit{Journal of Finance}, 48(1), 65--91.",
         r"\textbf{Asness, C. et al.} (2013). Value and momentum everywhere. \textit{Journal of Finance}, 68(3), 929--985."
     ))
 
-    p = pre("Aula 07 --- Sinal v2", "Vol-Adjusted Momentum: Melhorando o Sinal")
+    p = pre("Aula 07 --- Sinal v2", "Vol-Adjusted Momentum: Mitigando Momentum Crashes")
     save(doc(p, frames), "aula-07-sinal-v2", "slides-aula-07-sinal-v2.tex")
 
 
@@ -703,221 +637,109 @@ def aula08():
     frames = "\\begin{frame}[plain]\n\\titlepage\n\\end{frame}\n\n"
 
     frames += fr("Nesta Aula", cols(
-        blk("Teoria (35 min)", its(
-            "Os três grandes vieses em backtests",
-            "Look-ahead bias: detecção e prevenção",
-            "Multiple testing bias: Harvey, Liu \\& Zhu (2016)",
-            "Walk-forward analysis: metodologia e implementação",
-            "Deflated Sharpe Ratio (DSR): Bailey \\& López de Prado (2014)")),
-        blk("Código (65 min)", its(
-            r"\texttt{backtest\_walkforward()} — OOS puro",
-            r"\texttt{calcular\_dsr()} — penalização por múltiplos testes",
-            "Visualização: IS vs OOS, distribuição de retornos",
+        blk("Teoria (20 min)", its(
+            "Os três grandes vieses: look-ahead, survivorship, multiple testing",
+            "Rotação de carteira (Turnover) e custos reais de transação",
+            "Por que os custos de transação devoram estratégias quantitativas",
+            "A metodologia walk-forward (Out-of-Sample pura)")),
+        blk("Código (40 min)", its(
+            r"\texttt{calcular\_turnover()} — turnover mensal da carteira",
+            r"\texttt{aplicar\_custos()} — implementar custos reais de transação (0.3\%)",
+            "Simular curva líquida e comparar com a curva bruta",
+            "Avaliar o impacto do rebalanceamento frequente no Sharpe",
             r"Salvar \texttt{retorno\_walkforward\_liquido.parquet}"))
     ))
 
-    frames += fr("Os Três Vieses do Backtest", cols(
-        r"""\begin{block}{1. Look-ahead Bias}
-Uso de informação futura na decisão de hoje.\\
-\textbf{Exemplo}: usar $r_t$ para formar o sinal de $t$.\\
-\textbf{Prevenção}: sempre \texttt{shift(1)} no backtest.
-\end{block}
+    frames += fr("Rigor Máximo: Custos e Turnover", cols(
+        r"""\textbf{O perigo mortal dos custos:}
 \vspace{.3em}
-\begin{block}{2. Survivorship Bias}
-Só analisa ativos que sobreviveram até hoje.\\
-\textbf{Exemplo}: dataset com só as empresas que não faliram.\\
-\textbf{Prevenção}: incluir composição histórica do índice.
-\end{block}
-\vspace{.3em}
-\begin{alertblock}{3. Multiple Testing Bias}
-Testar $N$ variações e reportar apenas a melhor.\\
-Com $N=100$ e $\alpha=5\%$, esperam-se 5 falsos positivos por acaso.\\
-\textbf{Correção}: ajuste de Bonferroni ou DSR.
-\end{alertblock}""",
-        blk("Harvey, Liu \\& Zhu (2016)", r"""
-Analisaram $>$300 fatores publicados em finanças.\\
-\vspace{.2em}
-\textbf{Conclusão}: a maioria são \textbf{falsos positivos}.\\
-O $t$-statistic mínimo aceitável evoluiu:
 \begin{itemize}
-  \item 1960s: $t > 2{,}0$ (Sharpe)
-  \item 2000s: $t > 3{,}0$ (Harvey et al.)
-  \item Hoje: DSR $> 0{,}95$ (López de Prado)
+  \item Estratégias quantitativas (especialmente momentum) têm alto giro (turnover)
+  \item Ignorar corretagem, taxas B3, e slippage gera um backtest fantasioso
+  \item Usamos um drag realista de **0.3% por transação** (compra/venda)
+\end{itemize}
+\vspace{.3em}
+\begin{block}{Definição de Turnover Mensal}
+\[
+\text{Turnover}_t = \frac{1}{2} \sum_{i=1}^N |w_{i,t} - w_{i,t-1}^+|
+\]
+onde $w_{i,t-1}^+$ é o peso no fim do mês devido à variação de preços.
+\end{block}""",
+        blk("Metodologia Walk-Forward", r"""
+Para simular a performance out-of-sample real:
+\begin{itemize}
+  \item Dividimos o histórico em blocos de treino (48m) e teste (12m)
+  \item Os parâmetros de alocação/vol são estimados *apenas* no treino e aplicados no teste
+  \item Garante que o Sharpe reportado não é fruto de overfitting de parâmetros
 \end{itemize}""") +
         "\\vspace{.3em}\n" +
-        blk("Walk-Forward", r"""
-Treina em janela rolling (36m), testa nos próximos 6m.
-Cada retorno OOS foi gerado com parâmetros calculados \textbf{antes} do período de teste.""", "example")
-    ))
-
-    frames += fr("Deflated Sharpe Ratio", cols(
-        r"""\textbf{Sharpe Ratio não ajustado:}
-\[ \hat{S} = \frac{\overline{r}}{\hat\sigma}\,\sqrt{12} \]
-
-\textbf{Deflated Sharpe Ratio (Bailey \& López de Prado, 2014):}
-\[ \text{DSR} = \Phi\!\left(\frac{(\hat{S} - E[\max S]) \sqrt{T-1}}{\sqrt{1 - \hat\rho\,E[\max S] + \hat{S}^2\,(\hat\kappa-1)/4}}\right) \]
-
-Onde $E[\max S]$ cresce com o número de estratégias testadas $N$:
-\[ E[\max S] \approx \sqrt{2}\,\Phi^{-1}\!\!\left(1 - \frac{1}{N}\right) \]""",
-        blk("Interpretação do DSR", its(
-            r"$\text{DSR} \in [0, 1]$: probabilidade de que o resultado é genuíno",
-            r"$\text{DSR} > 0{,}95$: robusto (nível de confiança 95\%)",
-            r"$\text{DSR} < 0{,}5$: forte suspeita de overfitting",
-            r"Penaliza por: número de testes, skewness e kurtosis dos retornos")) +
-        "\\vspace{.3em}\n" +
-        blk("Fórmula captura", its(
-            r"Correção por não-normalidade ($\hat\gamma$, $\hat\kappa$)",
-            r"Penalização por $N$ estratégias testadas",
-            r"Incerteza estatística de $\hat{S}$ com $T$ observações"), "example")
+        blk("Regra dos 3 Vieses", r"Sempre shift(2) no sinal, shift(1) nos pesos, custos no turnover e histórico com constituintes corretos.", "alerted")
     ))
 
     frames += fr("O que Vamos Construir", construir(
-        [r"\texttt{backtest\_walkforward(sinal, ret, treino=36, teste=6)} $\to$ ret OOS",
-         r"\texttt{calcular\_dsr(retornos, n\_estrategias=5)} $\to$ dicionário de métricas",
-         r"\texttt{plot\_is\_vs\_oos(ret\_is, ret\_oos)} $\to$ comparação visual"],
+        [r"\texttt{calcular\_turnover(pesos)} $\to$ Series de turnover mensal",
+         r"\texttt{simular\_backtest\_liquido(ret, pesos, custo=0.003)} $\to$ retornos líquidos",
+         r"\texttt{backtest\_walkforward(sinal, ret)} $\to$ retornos walk-forward"],
         [r"\texttt{sinal\_v2.parquet}",
-         r"\texttt{retornos\_mensais\_limpo.parquet}",
-         r"\texttt{retorno\_carteira.parquet}"],
+         r"\texttt{pesos\_v2.parquet}",
+         r"\texttt{retornos\_mensais\_limpo.parquet}"],
         [r"\texttt{retorno\_walkforward\_liquido.parquet}",
-         "Gráfico IS vs OOS",
-         "Tabela DSR e métricas OOS"]
+         "Gráfico comparativo Bruto vs Líquido de Custos"]
     ))
 
     frames += fr("Referências", refs(
-        r"\textbf{Bailey, D. \& López de Prado, M.} (2014). The deflated Sharpe ratio. \textit{Journal of Portfolio Management}, 40(5).",
-        r"\textbf{Harvey, C., Liu, Y. \& Zhu, H.} (2016). ... and the cross-section of expected returns. \textit{Review of Financial Studies}, 29(1), 5--68.",
+        r"\textbf{Bailey, D. \& López de Prado, M.} (2014). The deflated Sharpe ratio. \textit{JPM}, 40(5).",
+        r"\textbf{Harvey, C., Liu, Y. \& Zhu, H.} (2016). ... and the cross-section of expected returns. \textit{RFS}, 29(1), 5--68.",
         r"\textbf{López de Prado, M.} (2018). \textit{Advances in Financial Machine Learning}. Wiley.",
-        r"\textbf{White, H.} (2000). A reality check for data snooping. \textit{Econometrica}, 68(5), 1097--1126.",
-        r"\textbf{Romano, J. \& Wolf, M.} (2005). Stepwise multiple testing as formalized data snooping. \textit{Econometrica}, 73(4), 1237--1282."
+        r"\textbf{Korajczyk, R. \& Sadka, R.} (2004). Are momentum profits robust to trading costs? \textit{Journal of Finance}, 59(3)."
     ))
 
-    p = pre("Aula 08 --- Backtest Rigoroso", "Walk-Forward, DSR e Validação Estatística")
+    p = pre("Aula 08 --- Backtest Rigoroso", "Walk-Forward, Custos e Simulação Realista")
     save(doc(p, frames), "aula-08-backtest-rigoroso", "slides-aula-08-backtest-rigoroso.tex")
 
 
-# ── Aula 09 — GenAI ──────────────────────────────────────────────────────────
+# ── Aula 09 — GenAI, Relatório & Defesa ──────────────────────────────────────
 
 def aula09():
     frames = "\\begin{frame}[plain]\n\\titlepage\n\\end{frame}\n\n"
 
     frames += fr("Nesta Aula", cols(
-        blk("Teoria (25 min)", its(
-            "LLMs no contexto de finanças quantitativas",
-            "Anatomia de uma API de LLM: messages, tokens, temperature",
-            "Prompt engineering para análise financeira",
-            "Casos de uso: sentiment, narrativa, assistência a código")),
-        blk("Código (75 min)", its(
-            r"Setup: \texttt{anthropic} SDK, API key segura",
-            r"\texttt{chamar\_claude(prompt, system)} — wrapper genérico",
-            r"\texttt{gerar\_comentario\_performance()} — narrativa institucional",
-            r"\texttt{sugerir\_melhorias()} — pesquisa assistida por LLM",
-            "Salvar narrativa em .txt para o relatório"))
-    ))
-
-    frames += fr("LLMs no Contexto Quant", cols(
-        its(r"\textbf{Análise de Sentimento}: processar earnings calls, atas do COPOM, releases — extrair score de sentimento com LLM",
-            r"\textbf{Geração de Narrativa}: dado Sharpe, MDD, IC $\Rightarrow$ comentário de performance no estilo gestora institucional",
-            r"\textbf{Assistência a Código}: descrever sinal em linguagem natural, LLM propõe implementação em Python",
-            r"\textbf{Pesquisa Assistida}: perguntar sobre literatura acadêmica, LLM cita papers e mecanismos relevantes"),
-        blk("Modelos Anthropic", its(
-            r"\textbf{Claude Haiku}: rápido, barato — experimentação",
-            r"\textbf{Claude Sonnet}: balanceado — produção",
-            r"\textbf{Claude Opus}: máxima capacidade — análises complexas")) +
-        "\\vspace{.3em}\n" +
-        blk("Limitações importantes", its(
-            r"LLM não acessa internet nem dados em tempo real",
-            r"Alucinações: sempre verifique citações e números",
-            r"Contexto de treinamento: conhecimento até data de corte",
-            r"Custo por token: dimensione prompts com cuidado"), "alerted")
-    ))
-
-    frames += fr("Prompt Engineering Financeiro", cols(
-        r"""\textbf{Prompt ruim:}
-\begin{lstlisting}
-"Analise minha estrategia."
-\end{lstlisting}
-\vspace{.2em}
-\textbf{Prompt bom (estrutura completa):}
-\begin{lstlisting}
-system = '''Voce e um analista quantitativo
-senior de uma gestora brasileira.
-Estilo: tecnico, formal, preciso.
-Tamanho: 200-250 palavras.'''
-
-user = f'''Estrategia: momentum cross-sectional IBOVESPA.
-Sharpe OOS: {sharpe:.2f}
-CAGR: {cagr:.1%}
-Max Drawdown: {mdd:.1%}
-Escreva comentario de performance.'''
-\end{lstlisting}""",
-        blk("Boas práticas", its(
-            r"System prompt: define personalidade e formato",
-            r"User prompt: dados concretos + instrução específica",
-            r"Temperature $\approx 0$: respostas determinísticas para números",
-            r"Temperature $\approx 0{,}3$: mais criatividade para narrativa",
-            r"few-shot: inclua 1--2 exemplos do formato desejado")) +
-        "\\vspace{.3em}\n" +
-        blk("Segurança", r"Nunca inclua API key no código. Use variável de ambiente: \texttt{ANTHROPIC\_API\_KEY}. Nunca suba \texttt{.env} para o GitHub.", "alerted")
-    ))
-
-    frames += fr("O que Vamos Construir", construir(
-        [r"\texttt{chamar\_claude(prompt, system, modelo, temp)} $\to$ str",
-         r"\texttt{resumo\_metricas(ret, nome)} $\to$ dicionário formatado",
-         r"\texttt{gerar\_comentario\_performance(m\_is, m\_oos)} $\to$ texto",
-         r"\texttt{sugerir\_melhorias(m\_oos)} $\to$ sugestões da literatura"],
-        [r"\texttt{retorno\_carteira.parquet}",
-         r"\texttt{retorno\_walkforward\_liquido.parquet}",
-         "API key da Anthropic configurada"],
-        [r"\texttt{narrativa\_performance.txt}",
-         "Sugestões de melhoria baseadas em literatura"]
-    ))
-
-    frames += fr("Referências", refs(
-        r"\textbf{Brown, T. et al.} (2020). Language models are few-shot learners (GPT-3). \textit{NeurIPS}.",
-        r"\textbf{Anthropic} (2024). Claude model card. \textit{anthropic.com}.",
-        r"\textbf{Wei, J. et al.} (2022). Chain-of-thought prompting elicits reasoning. \textit{NeurIPS}.",
-        r"\textbf{Lopez-Lira, A. \& Tang, Y.} (2023). Can ChatGPT forecast stock price movements? \textit{SSRN}.",
-        r"\textbf{Jegadeesh, N. \& Titman, S.} (1993). Returns to buying winners. \textit{Journal of Finance}, 48(1), 65--91."
-    ))
-
-    p = pre("Aula 09 --- GenAI", "LLMs e a API Claude no Pipeline Quantitativo")
-    save(doc(p, frames), "aula-09-genai", "slides-aula-09-genai.tex")
-
-
-# ── Aula 10 — Relatório e Defesa ─────────────────────────────────────────────
-
-def aula10():
-    frames = "\\begin{frame}[plain]\n\\titlepage\n\\end{frame}\n\n"
-
-    frames += fr("Nesta Aula", cols(
         blk("Teoria (20 min)", its(
-            "Estrutura do relatório técnico para o Desafio Itaú",
-            "Quatro dimensões avaliadas pelos juízes",
-            "Como defender sob pressão: perguntas difíceis",
-            "Erros comuns a evitar")),
-        blk("Código (80 min)", its(
-            r"\texttt{painel\_relatorio\_final()} — figura principal com 4 subplots",
-            r"\texttt{analise\_sensibilidade()} — lookback e n\_long\_pct",
-            r"\texttt{ic\_temporal()} — IC mensal e rolling 12m",
-            "Montar todos os resultados em estrutura de relatório",
-            "Simulação de defesa: perguntas e respostas"))
+            "Onde GenAI (LLMs) se encaixa de forma prática no pipeline quant",
+            "Como redigir prompts estruturados para análise técnica do Claude",
+            "Os 7 critérios de avaliação da banca do Itaú Asset",
+            "A estrutura do relatório final e regras da defesa oral")),
+        blk("Código (40 min)", its(
+            r"Setup: wrappers para a API do Claude (\texttt{anthropic} SDK)",
+            r"\texttt{gerar\_draft\_secao()} — automatizar seções via LLM",
+            r"\texttt{painel\_tear\_sheet()} — figura consolidada de 5 painéis",
+            "Geração automática do rascunho em markdown",
+            "Simulação da banca de defesa oral com IA"))
     ))
 
-    frames += fr("Estrutura do Relatório Final", cols(
-        its(r"\textbf{1. Sumário Executivo} (1 pág.): hipótese, metodologia, resultado principal, limitações",
-            r"\textbf{2. Dados e Universo}: fonte, período, limpeza, survivorship bias",
-            r"\textbf{3. Metodologia}: sinal (fórmula + código), portfólio, backtest, rigor OOS",
-            r"\textbf{4. Resultados}: tabela IS/OOS, equity curve, IC, DSR",
-            r"\textbf{5. Sensibilidade}: variação de lookback e tamanho do portfólio",
-            r"\textbf{6. Limitações e Trabalhos Futuros}: honestidade sobre lacunas",
-            r"\textbf{7. Referências}: papers completos (APA ou ABNT)"),
-        blk("Critérios dos Juízes", its(
-            r"\textbf{Rigor metodológico}: walk-forward, shift(1), sem look-ahead",
-            r"\textbf{Fundamentação econômica}: por que momentum funciona?",
-            r"\textbf{Qualidade do código}: reprodutível, versionado no GitHub",
-            r"\textbf{Comunicação}: proporcional à evidência, limitações declaradas")) +
-        "\\vspace{.3em}\n" +
-        blk("Regra de ouro", r"Um resultado honesto com limitações bem articuladas vale mais que um resultado inflado com lacunas escondidas.", "alerted")
+    frames += fr("LLMs no Pipeline Quantitativo", cols(
+        its(r"\textbf{Análise de Resultados}: LLM recebe Sharpe, MDD e volatilidade, interpretando regimes de risco e gerando comentários.",
+            r"\textbf{Redação Estruturada}: Geração rápida do Sumário Executivo, Metodologia (LaTeX) e Limitações técnicas.",
+            r"\textbf{Revisão Crítica}: Atuar como advogado do diabo, questionando fragilidades no nosso próprio backtest.",
+            r"\textbf{Preparação da Defesa}: Simular perguntas difíceis da banca da Itaú Asset."),
+        blk("Boas Práticas de Prompt", its(
+            r"Use System Prompts claros (defina persona de analista sênior)",
+            r"Passe dados estruturados (não mande 'analisar minha estratégia', passe a tabela)",
+            r"Peça Chain of Thought (ex: 'raciocine sobre regimes de mercado antes de concluir')",
+            r"Configure temperature baixa para dados numéricos precisos")) +
+        "\\vspace{.2em}\n" +
+        blk("Segurança e API Keys", r"Nunca insira chaves no código. Use variáveis de ambiente (\texttt{ANTHROPIC\_API\_KEY}) e suba apenas o build.", "alerted")
+    ))
+
+    frames += fr("Os 7 Critérios da Banca do Itaú", cols(
+        its(r"\textbf{1. Conceito da Estratégia (20\%)}: Tese econômica clara (underreaction comportamental, Jegadeesh \& Titman).",
+            r"\textbf{2. Modelagem (20\%)}: Justificativa dos parâmetros, tratamento de outliers e Markowitz caps.",
+            r"\textbf{3. Uso de GenAI (15\%)}: Claude usado para análise qualitativa, redação e críticas do relatório.",
+            r"\textbf{4. Backtest (15\%)}: Sem look-ahead bias, weights.shift(1), custos realistas (0.3\%) e walk-forward.",
+            r"\textbf{5. Análise de Resultados (15\%)}: Sharpe, MDD, Calmar, Alpha/Beta vs IBOVESPA.",
+            r"\textbf{6. Conclusão e Próximos Passos (10\%)}: Limitações quantificadas de forma madura.",
+            r"\textbf{7. Apresentação (5\%)}: Identidade e clareza."),
+        blk("Regra de Ouro", r"O rigor técnico e a honestidade intelectual sobre as limitações do backtest contam muito mais para a banca do Itaú do que o retorno absoluto.", "alerted")
     ))
 
     frames += fr("Pipeline Completo — Resumo", r"""
@@ -931,11 +753,11 @@ def aula10():
   \node[box,right=of d](e){EDA\\análise};
   \node[box,right=of e](s1){Sinal v1\\12-1};
   \node[box,right=of s1](s2){Sinal v2\\vol-adj};
-  \node[box,right=of s2](p){Portfólio\\top 20\%};
-  \node[box,right=of p](b){Backtest\\IS};
-  \node[box,right=of b](v){WF-OOS\\DSR};
-  \node[box,right=of v](g){GenAI\\narrativa};
-  \node[box,right=of g](r){Relatório\\defesa};
+  \node[box,right=of s2](p){Portfólio\\Markowitz};
+  \node[box,right=of p](b){Backtest\\EW vs MW};
+  \node[box,right=of b](v){WF-OOS\\Custos 0.3\%};
+  \node[box,right=of v](g){GenAI\\Claude};
+  \node[box,right=of g](r){Relatório\\Defesa};
 
   \draw[arr](d)--(e);\draw[arr](e)--(s1);\draw[arr](s1)--(s2);
   \draw[arr](s2)--(p);\draw[arr](p)--(b);\draw[arr](b)--(v);
@@ -945,78 +767,69 @@ def aula10():
   \node[lbl,below=.3cm of e]{Aula 3};
   \node[lbl,below=.3cm of s1]{Aula 4};
   \node[lbl,below=.3cm of s2]{Aula 7};
-  \node[lbl,below=.3cm of p]{Aulas 5-6};
-  \node[lbl,below=.3cm of b]{Aula 5};
+  \node[lbl,below=.3cm of p]{Aula 6};
+  \node[lbl,below=.3cm of b]{Aulas 5-6};
   \node[lbl,below=.3cm of v]{Aula 8};
   \node[lbl,below=.3cm of g]{Aula 9};
-  \node[lbl,below=.3cm of r]{Aula 10};
+  \node[lbl,below=.3cm of r]{Aula 9};
 \end{tikzpicture}
 \end{center}
 \vspace{.2em}
 \begin{columns}[T]
   \column{0.48\textwidth}
-  \begin{block}{Parquets produzidos}
-    \texttt{precos\_ibov} $\cdot$ \texttt{ret\_diarios\_limpo} $\cdot$ \texttt{ret\_mensais\_limpo}\\
-    \texttt{sinal\_v1} $\cdot$ \texttt{sinal\_v2} $\cdot$ \texttt{pesos\_v1} $\cdot$ \texttt{pesos\_v2}\\
-    \texttt{retorno\_carteira} $\cdot$ \texttt{retorno\_walkforward\_liquido}
+  \begin{block}{Entregáveis da nossa estratégia}
+    \texttt{precos\_ibov} $\cdot$ \texttt{sinal\_v2} $\cdot$ \texttt{pesos\_markowitz}\\
+    \texttt{retorno\_walkforward\_liquido} $\cdot$ \texttt{tearsheet\_final.png}
   \end{block}
   \column{0.48\textwidth}
-  \begin{exampleblock}{Entregáveis do Desafio}
-    Relatório PDF $\cdot$ Código no GitHub\\
-    Apresentação 10 min + 5 min Q\&A\\
-    Notebook reprodutível do zero
+  \begin{exampleblock}{Dica para a Defesa}
+    Apresente as limitações (como survivorship bias) antes que a banca pergunte. Isso demonstra maturidade acadêmica e prática.
   \end{exampleblock}
 \end{columns}""")
 
     frames += fr("Como Defender — Perguntas Difíceis", cols(
-        blk("Pergunta 1", r"""
-\textit{``Seu Sharpe é atribuível ao momentum ou ao beta de mercado?''}\\[.3em]
-\textbf{Resposta}: Compare correlação da carteira com IBOVESPA. Mostre alpha de Jensen $\alpha = r_p - \beta\,r_m$.
-""") +
-        "\\vspace{.3em}\n" +
-        blk("Pergunta 2", r"""
-\textit{``Como controlaram survivorship bias?''}\\[.3em]
-\textbf{Resposta}: Declarar como limitação. Explicar que yfinance com histórico minimiza, mas não elimina. Citar na seção 6.
-""") +
-        "\\vspace{.3em}\n" +
-        blk("Pergunta 3", r"""
-\textit{``Por que equal-weight e não Markowitz?''}\\[.3em]
-\textbf{Resposta}: DeMiguel et al.\ (2009) — 1/N vence Markowitz OOS. Mostrar tabela de Sharpe comparativo.
+        blk("Janela 12-1 e Parâmetros", r"""
+\textit{``Por que 12-1 e não outra janela?''}\\[.3em]
+\textbf{Defesa}: Fixamos o parâmetro baseados na literatura de Jegadeesh \& Titman (1993) antes de ver os dados para evitar overfitting de parâmetros.
+""") + "\n\\vspace{.2em}\n" +
+        blk("Equal-Weight vs Otimizado", r"""
+\textit{``Por que usar Equal-Weight ou Markowitz restrito?''}\\[.3em]
+\textbf{Defesa}: Otimização pura é instável devido a erros de estimação. Impor restrições de peso ($w_i \in [0, 0.20]$) nos protege contra pesos extremos.
 """),
-        blk("Regras da Defesa", its(
-            r"Nunca finja saber o que não sabe",
-            r"\textit{``Boa pergunta, não testamos, mas hipotetizamos que...''} é melhor que erro com confiança",
-            r"Cite papers para todo claim quantitativo",
-            r"Mostre os gráficos — visuais vencem palavras",
-            r"Declare limitações antes de te perguntarem")) +
-        "\\vspace{.3em}\n" +
-        blk("Encerramento", r"""
-Em 10 semanas: dados reais, sinal acadêmico, backtest rigoroso, validação OOS, GenAI.
-\textbf{Façam bonito no Desafio!}""", "example")
+        blk("Regras da Apresentação", its(
+            r"Nunca invente dados: admita o que não sabe",
+            r"Foque nos gráficos: a imagem da Tear Sheet final conta a história inteira",
+            r"Cuidado com o turnover: demonstre que a estratégia sobrevive à fricção de transação"))
+    ))
+
+    frames += fr("O que Vamos Construir", construir(
+        [r"\texttt{chamar\_claude(prompt, system)} $\to$ chamada Anthropic",
+         r"\texttt{painel\_tear\_sheet(ret\_wf, ret\_ibov)} $\to$ Tearsheet PNG",
+         r"\texttt{gerar\_relatorio\_completo()} $\to$ exportar draft markdown"],
+        [r"\texttt{retorno\_walkforward\_liquido.parquet}",
+         r"\texttt{retornos\_mensais\_limpo.parquet}",
+         "API key da Anthropic"],
+        [r"\texttt{relatorio\_final\_draft.md}",
+         r"\texttt{tearsheet\_final.png}"]
     ))
 
     frames += fr("Referências — Pipeline Completo", refs(
         r"\textbf{Jegadeesh, N. \& Titman, S.} (1993). Returns to buying winners. \textit{Journal of Finance}, 48(1).",
         r"\textbf{Moskowitz, T. et al.} (2012). Time series momentum. \textit{JFE}, 104(2), 228--250.",
-        r"\textbf{Fama, E. \& French, K.} (1993). Common risk factors. \textit{JFE}, 33(1), 3--56.",
         r"\textbf{DeMiguel, V. et al.} (2009). Optimal versus naive diversification. \textit{RFS}, 22(5).",
         r"\textbf{Bailey, D. \& López de Prado, M.} (2014). The deflated Sharpe ratio. \textit{JPM}, 40(5).",
-        r"\textbf{Harvey, C. et al.} (2016). Cross-section of expected returns. \textit{RFS}, 29(1).",
-        r"\textbf{López de Prado, M.} (2018). \textit{Advances in Financial Machine Learning}. Wiley.",
         r"\textbf{Daniel, K. \& Moskowitz, T.} (2016). Momentum crashes. \textit{JFE}, 122(2).",
-        r"\textbf{Cont, R.} (2001). Empirical properties of asset returns. \textit{Quantitative Finance}, 1(2).",
         r"\textbf{Markowitz, H.} (1952). Portfolio Selection. \textit{Journal of Finance}, 7(1)."
     ))
 
-    p = pre("Aula 10 --- Relatório e Defesa",
-            "Relatório Final, Análise de Sensibilidade e Simulação de Defesa")
-    save(doc(p, frames), "aula-10-relatorio-defesa", "slides-aula-10-relatorio-defesa.tex")
+    p = pre("Aula 09 --- GenAI, Relatório \& Defesa", "LLMs, Geração de Relatório e Simulado de Defesa")
+    save(doc(p, frames), "aula-09-genai-relatorio", "slides-aula-09-genai-relatorio.tex")
 
 
 # ── main ──────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    print("Gerando LaTeX Aulas 02-10...")
+    print("Gerando LaTeX Aulas 02-09...")
     aula02(); aula03(); aula04(); aula05()
-    aula06(); aula07(); aula08(); aula09(); aula10()
+    aula06(); aula07(); aula08(); aula09()
     print("Concluido!")

@@ -1,0 +1,255 @@
+\documentclass[aspectratio=169,12pt]{beamer}
+\usepackage{fontspec}
+\usepackage[portuguese]{babel}
+\usepackage{xcolor,listings,tikz,booktabs,amsmath,amssymb,graphicx,multicol,array,colortbl}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,calc}
+
+\definecolor{navy}{HTML}{0D1B3E}
+\definecolor{gold}{HTML}{F5A623}
+\definecolor{qgreen}{HTML}{1E8B4C}
+\definecolor{qblue}{HTML}{1A6EAE}
+\definecolor{codebg}{HTML}{EEF3F8}
+
+\usetheme{default}
+\useinnertheme{circles}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}{%
+  \hfill{\color{gray!60}\scriptsize\insertframenumber/\inserttotalframenumber}\hspace{.6em}\vspace{.4em}}
+
+\setbeamercolor{frametitle}{bg=navy,fg=white}
+\setbeamercolor{structure}{fg=navy}
+\setbeamercolor{alerted text}{fg=gold}
+\setbeamercolor{item}{fg=gold}
+\setbeamercolor{subitem}{fg=navy}
+\setbeamercolor{block title}{bg=qblue,fg=white}
+\setbeamercolor{block body}{bg=qblue!8,fg=black}
+\setbeamercolor{block title alerted}{bg=gold,fg=navy}
+\setbeamercolor{block body alerted}{bg=gold!15,fg=navy}
+\setbeamercolor{block title example}{bg=qgreen,fg=white}
+\setbeamercolor{block body example}{bg=qgreen!10,fg=black}
+\setbeamerfont{frametitle}{size=\large,series=\bfseries}
+\setbeamerfont{block title}{series=\bfseries}
+
+\setbeamertemplate{title page}{%
+  \begin{tikzpicture}[remember picture,overlay]
+    \fill[navy](current page.north west)rectangle(current page.south east);
+    \fill[gold]([yshift=.7cm]current page.south west)rectangle(current page.south east);
+    \node[anchor=south,yshift=.73cm,navy,font=\tiny\bfseries]at(current page.south)
+      {INTENSIVÃO QUANT AI \textbullet{} IMPACT UFSCAR};
+  \end{tikzpicture}
+  \vspace{.65cm}
+  \begin{center}
+    {\color{gold}\scriptsize\bfseries INTENSIVÃO QUANT AI \textbullet{} IMPACT UFSCAR}\\[.4cm]
+    {\color{white}\LARGE\bfseries\inserttitle}\\[.25cm]
+    {\color{gold!85}\normalsize\insertsubtitle}\\[.5cm]
+    {\color{white!70}\small\insertauthor}\\[.1cm]
+    {\color{white!50}\footnotesize\insertdate}
+  \end{center}}
+
+\lstdefinestyle{python}{language=Python,
+  basicstyle=\ttfamily\scriptsize\color{qblue},
+  keywordstyle=\color{navy}\bfseries,
+  stringstyle=\color{qgreen!80!black},
+  commentstyle=\color{gray!70}\itshape,
+  backgroundcolor=\color{codebg},
+  frame=l,framerule=2pt,rulecolor=\color{gold},
+  xleftmargin=1em,breaklines=true,showstringspaces=false,tabsize=4,
+  extendedchars=false,inputencoding=ascii}
+\lstset{style=python}
+
+\author{Felipe Maldonado\\{\scriptsize VP Diretoria Quant~\textbullet{}~Impact UFSCAR}}
+\date{Intensivão Quant AI 2026}
+\title{Aula 09 --- GenAI, Relatório \& Defesa}
+\subtitle{LLMs, Geração de Relatório e Simulado de Defesa}
+
+\begin{document}
+
+\begin{frame}[plain]
+\titlepage
+\end{frame}
+
+\begin{frame}[fragile]{Nesta Aula}
+\begin{columns}[T]
+  \column{0.5\textwidth}
+\begin{block}{Teoria (20 min)}
+\begin{itemize}
+  \item Onde GenAI (LLMs) se encaixa de forma prática no pipeline quant
+  \item Como redigir prompts estruturados para análise técnica do Claude
+  \item Os 7 critérios de avaliação da banca do Itaú Asset
+  \item A estrutura do relatório final e regras da defesa oral
+\end{itemize}
+\end{block}
+  \column{0.47\textwidth}
+\begin{block}{Código (40 min)}
+\begin{itemize}
+  \item Setup: wrappers para a API do Claude (\texttt{anthropic} SDK)
+  \item \texttt{gerar\_draft\_secao()} — automatizar seções via LLM
+  \item \texttt{painel\_tear\_sheet()} — figura consolidada de 5 painéis
+  \item Geração automática do rascunho em markdown
+  \item Simulação da banca de defesa oral com IA
+\end{itemize}
+\end{block}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{LLMs no Pipeline Quantitativo}
+\begin{columns}[T]
+  \column{0.5\textwidth}
+\begin{itemize}
+  \item \textbf{Análise de Resultados}: LLM recebe Sharpe, MDD e volatilidade, interpretando regimes de risco e gerando comentários.
+  \item \textbf{Redação Estruturada}: Geração rápida do Sumário Executivo, Metodologia (LaTeX) e Limitações técnicas.
+  \item \textbf{Revisão Crítica}: Atuar como advogado do diabo, questionando fragilidades no nosso próprio backtest.
+  \item \textbf{Preparação da Defesa}: Simular perguntas difíceis da banca da Itaú Asset.
+\end{itemize}
+  \column{0.47\textwidth}
+\begin{block}{Boas Práticas de Prompt}
+\begin{itemize}
+  \item Use System Prompts claros (defina persona de analista sênior)
+  \item Passe dados estruturados (não mande 'analisar minha estratégia', passe a tabela)
+  \item Peça Chain of Thought (ex: 'raciocine sobre regimes de mercado antes de concluir')
+  \item Configure temperature baixa para dados numéricos precisos
+\end{itemize}
+\end{block}\vspace{.2em}
+\begin{alertblock}{Segurança e API Keys}
+Nunca insira chaves no código. Use variáveis de ambiente (\texttt{ANTHROPIC\_API\_KEY}) e suba apenas o build.
+\end{alertblock}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Os 7 Critérios da Banca do Itaú}
+\begin{columns}[T]
+  \column{0.5\textwidth}
+\begin{itemize}
+  \item \textbf{1. Conceito da Estratégia (20\%)}: Tese econômica clara (underreaction comportamental, Jegadeesh \& Titman).
+  \item \textbf{2. Modelagem (20\%)}: Justificativa dos parâmetros, tratamento de outliers e Markowitz caps.
+  \item \textbf{3. Uso de GenAI (15\%)}: Claude usado para análise qualitativa, redação e críticas do relatório.
+  \item \textbf{4. Backtest (15\%)}: Sem look-ahead bias, weights.shift(1), custos realistas (0.3\%) e walk-forward.
+  \item \textbf{5. Análise de Resultados (15\%)}: Sharpe, MDD, Calmar, Alpha/Beta vs IBOVESPA.
+  \item \textbf{6. Conclusão e Próximos Passos (10\%)}: Limitações quantificadas de forma madura.
+  \item \textbf{7. Apresentação (5\%)}: Identidade e clareza.
+\end{itemize}
+  \column{0.47\textwidth}
+\begin{alertblock}{Regra de Ouro}
+O rigor técnico e a honestidade intelectual sobre as limitações do backtest contam muito mais para a banca do Itaú do que o retorno absoluto.
+\end{alertblock}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Pipeline Completo — Resumo}
+
+\begin{center}
+\begin{tikzpicture}[node distance=.55cm and .3cm,
+  box/.style={draw=navy,fill=navy!8,rounded corners=3pt,
+              text width=1.55cm,align=center,font=\tiny\bfseries,inner sep=3pt},
+  lbl/.style={font=\tiny,gold},
+  arr/.style={-Stealth,navy,thick}]
+  \node[box](d){Dados\\yfinance};
+  \node[box,right=of d](e){EDA\\análise};
+  \node[box,right=of e](s1){Sinal v1\\12-1};
+  \node[box,right=of s1](s2){Sinal v2\\vol-adj};
+  \node[box,right=of s2](p){Portfólio\\Markowitz};
+  \node[box,right=of p](b){Backtest\\EW vs MW};
+  \node[box,right=of b](v){WF-OOS\\Custos 0.3\%};
+  \node[box,right=of v](g){GenAI\\Claude};
+  \node[box,right=of g](r){Relatório\\Defesa};
+
+  \draw[arr](d)--(e);\draw[arr](e)--(s1);\draw[arr](s1)--(s2);
+  \draw[arr](s2)--(p);\draw[arr](p)--(b);\draw[arr](b)--(v);
+  \draw[arr](v)--(g);\draw[arr](g)--(r);
+
+  \node[lbl,below=.3cm of d]{Aula 2};
+  \node[lbl,below=.3cm of e]{Aula 3};
+  \node[lbl,below=.3cm of s1]{Aula 4};
+  \node[lbl,below=.3cm of s2]{Aula 7};
+  \node[lbl,below=.3cm of p]{Aula 6};
+  \node[lbl,below=.3cm of b]{Aulas 5-6};
+  \node[lbl,below=.3cm of v]{Aula 8};
+  \node[lbl,below=.3cm of g]{Aula 9};
+  \node[lbl,below=.3cm of r]{Aula 9};
+\end{tikzpicture}
+\end{center}
+\vspace{.2em}
+\begin{columns}[T]
+  \column{0.48\textwidth}
+  \begin{block}{Entregáveis da nossa estratégia}
+    \texttt{precos\_ibov} $\cdot$ \texttt{sinal\_v2} $\cdot$ \texttt{pesos\_markowitz}\\
+    \texttt{retorno\_walkforward\_liquido} $\cdot$ \texttt{tearsheet\_final.png}
+  \end{block}
+  \column{0.48\textwidth}
+  \begin{exampleblock}{Dica para a Defesa}
+    Apresente as limitações (como survivorship bias) antes que a banca pergunte. Isso demonstra maturidade acadêmica e prática.
+  \end{exampleblock}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Como Defender — Perguntas Difíceis}
+\begin{columns}[T]
+  \column{0.5\textwidth}
+\begin{block}{Janela 12-1 e Parâmetros}
+
+\textit{``Por que 12-1 e não outra janela?''}\\[.3em]
+\textbf{Defesa}: Fixamos o parâmetro baseados na literatura de Jegadeesh \& Titman (1993) antes de ver os dados para evitar overfitting de parâmetros.
+
+\end{block}
+\vspace{.2em}
+\begin{block}{Equal-Weight vs Otimizado}
+
+\textit{``Por que usar Equal-Weight ou Markowitz restrito?''}\\[.3em]
+\textbf{Defesa}: Otimização pura é instável devido a erros de estimação. Impor restrições de peso ($w_i \in [0, 0.20]$) nos protege contra pesos extremos.
+
+\end{block}
+  \column{0.47\textwidth}
+\begin{block}{Regras da Apresentação}
+\begin{itemize}
+  \item Nunca invente dados: admita o que não sabe
+  \item Foque nos gráficos: a imagem da Tear Sheet final conta a história inteira
+  \item Cuidado com o turnover: demonstre que a estratégia sobrevive à fricção de transação
+\end{itemize}
+\end{block}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{O que Vamos Construir}
+\begin{columns}[T]
+  \column{0.52\textwidth}
+\begin{block}{Funções a implementar}
+\begin{itemize}
+  \item \texttt{chamar\_claude(prompt, system)} $\to$ chamada Anthropic
+  \item \texttt{painel\_tear\_sheet(ret\_wf, ret\_ibov)} $\to$ Tearsheet PNG
+  \item \texttt{gerar\_relatorio\_completo()} $\to$ exportar draft markdown
+\end{itemize}
+\end{block}
+  \column{0.45\textwidth}
+\begin{block}{Entradas (parquets)}
+\begin{itemize}
+  \item \texttt{retorno\_walkforward\_liquido.parquet}
+  \item \texttt{retornos\_mensais\_limpo.parquet}
+  \item API key da Anthropic
+\end{itemize}
+\end{block}
+\vspace{.4em}
+\begin{exampleblock}{Saídas (parquets)}
+\begin{itemize}
+  \item \texttt{relatorio\_final\_draft.md}
+  \item \texttt{tearsheet\_final.png}
+\end{itemize}
+\end{exampleblock}
+\end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Referências — Pipeline Completo}
+\begin{multicols}{2}
+\tiny
+\begin{itemize}
+  \item \textbf{Jegadeesh, N. \& Titman, S.} (1993). Returns to buying winners. \textit{Journal of Finance}, 48(1).
+  \item \textbf{Moskowitz, T. et al.} (2012). Time series momentum. \textit{JFE}, 104(2), 228--250.
+  \item \textbf{DeMiguel, V. et al.} (2009). Optimal versus naive diversification. \textit{RFS}, 22(5).
+  \item \textbf{Bailey, D. \& López de Prado, M.} (2014). The deflated Sharpe ratio. \textit{JPM}, 40(5).
+  \item \textbf{Daniel, K. \& Moskowitz, T.} (2016). Momentum crashes. \textit{JFE}, 122(2).
+  \item \textbf{Markowitz, H.} (1952). Portfolio Selection. \textit{Journal of Finance}, 7(1).
+\end{itemize}
+\end{multicols}
+\end{frame}
+
+
+\end{document}

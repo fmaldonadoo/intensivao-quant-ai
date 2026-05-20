@@ -60,8 +60,9 @@ Uma estratégia competitiva no desafio deve apresentar:
 
 ```
 Aula 4  → Sinal v1: retorno 12-1, top N, equal weight
-Aula 5  → Backtest v1: métricas básicas vs IBOV
-Aula 6  → Alocação: signal-weighted, wᵀΣw
-Aula 7  → Sinal v2: vol-adjusted momentum
-Aula 8  → Backtest rigoroso: custos, walk-forward, significância
+Aula 5  → Backtest v1: métricas básicas (CAGR, Sharpe, DD) vs IBOV (Equal-Weight)
+Aula 6  → Alocação: otimização de Markowitz via scipy.optimize (Sharpe máx.)
+Aula 7  → Sinal v2: vol-adjusted momentum (sinal v1 / vol rolling 63d)
+Aula 8  → Backtest rigoroso: turnover mensal, custos reais (0.3%), retorno líquido
+Aula 9  → GenAI, Relatório & Defesa: análise com Claude, PDF do relatório e defesa
 ```

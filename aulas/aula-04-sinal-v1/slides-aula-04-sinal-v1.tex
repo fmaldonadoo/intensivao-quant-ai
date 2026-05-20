@@ -58,7 +58,7 @@
 \lstset{style=python}
 
 \author{Felipe Maldonado\\{\scriptsize VP Diretoria Quant~\textbullet{}~Impact UFSCAR}}
-\date{Intensivão Quant AI 2025}
+\date{Intensivão Quant AI 2026}
 \title{Aula 04 --- Sinal v1}
 \subtitle{Construindo o Sinal de Momentum Cross-Sectional}
 
@@ -71,7 +71,7 @@
 \begin{frame}[fragile]{Nesta Aula}
 \begin{columns}[T]
   \column{0.5\textwidth}
-\begin{block}{Teoria (30 min)}
+\begin{block}{Teoria (20 min)}
 \begin{itemize}
   \item O pipeline quant de geração de alfa
   \item Anatomia do sinal 12-1 de momentum
@@ -80,7 +80,7 @@
 \end{itemize}
 \end{block}
   \column{0.47\textwidth}
-\begin{block}{Código (70 min)}
+\begin{block}{Código (40 min)}
 \begin{itemize}
   \item \texttt{calcular\_sinal\_v1()} — implementação do sinal 12-1
   \item Ranking cross-sectional mensal
@@ -122,7 +122,7 @@ ret.shift(2).rolling(11).sum()
 \begin{block}{Ranking Cross-Sectional}
 
 Cada mês $t$: ranquear todos os ativos pelo sinal.\\
-Comprar \textbf{top 20\%} (quintil superior).\\
+Comprar \textbf{top 10\%} (quintil superior).\\
 Portfólio long-only, equal-weight entre selecionados.
 \end{block}
 \end{columns}

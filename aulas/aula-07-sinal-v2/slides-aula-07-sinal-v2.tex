@@ -58,9 +58,9 @@
 \lstset{style=python}
 
 \author{Felipe Maldonado\\{\scriptsize VP Diretoria Quant~\textbullet{}~Impact UFSCAR}}
-\date{Intensivão Quant AI 2025}
+\date{Intensivão Quant AI 2026}
 \title{Aula 07 --- Sinal v2}
-\subtitle{Vol-Adjusted Momentum: Melhorando o Sinal}
+\subtitle{Vol-Adjusted Momentum: Mitigando Momentum Crashes}
 
 \begin{document}
 
@@ -71,22 +71,22 @@
 \begin{frame}[fragile]{Nesta Aula}
 \begin{columns}[T]
   \column{0.5\textwidth}
-\begin{block}{Teoria (30 min)}
+\begin{block}{Teoria (20 min)}
 \begin{itemize}
   \item Limitação crítica do sinal v1: momentum crash
   \item Vol-adjusted momentum: Moskowitz, Ooi \& Pedersen (2012)
-  \item Comparação fair entre sinais: IC médio e Sharpe OOS
-  \item Quando o ajuste de volatilidade ajuda (e quando não)
+  \item Comparação justa entre sinais: IC médio e Sharpe
+  \item Por que normalizar por volatilidade reduz tail risk
 \end{itemize}
 \end{block}
   \column{0.47\textwidth}
-\begin{block}{Código (70 min)}
+\begin{block}{Código (40 min)}
 \begin{itemize}
-  \item \texttt{calcular\_vol\_rolling(ret, janela=63)} — vol diária rolling
-  \item \texttt{calcular\_sinal\_v2(sinal\_v1, vol)} — sinal normalizado
-  \item Comparação de IC: v1 vs v2 (bar chart)
+  \item \texttt{calcular\_vol\_rolling()} — volatilidade de 63 dias úteis
+  \item \texttt{calcular\_sinal\_v2()} — normalização do sinal pela vol
+  \item Comparação de IC: v1 vs v2 (rolling e médio)
   \item Backtest comparativo: equity curves lado a lado
-  \item Salvar \texttt{sinal\_v2.parquet} e \texttt{pesos\_v2\_final.parquet}
+  \item Salvar \texttt{sinal\_v2.parquet}
 \end{itemize}
 \end{block}
 \end{columns}
@@ -95,21 +95,19 @@
 \begin{frame}[fragile]{Limitação do Sinal v1 — Momentum Crash}
 \begin{columns}[T]
   \column{0.5\textwidth}
-\textbf{Problema identificado por Daniel \& Moskowitz (2016):}
+\textbf{O fenômeno do Momentum Crash:}
 \vspace{.3em}
 \begin{itemize}
-  \item Em crises de mercado (2008, 2020), os ``vencedores'' do sinal v1 são tipicamente ativos de \textbf{alta beta}
-  \item No crash, estes ativos caem mais que o mercado
-  \item O sinal de momentum ``captura'' um risco de mercado latente
-  \item Resultado: drawdown de 40--60\% em crises severas
+  \item Em pânicos de mercado, o momentum seleciona ações de \textbf{alto beta} (que caíram muito ou subiram muito de forma volátil)
+  \item Na recuperação pós-crise, os perdedores de alto beta disparam, e os \"vencedores\" defensivos sobem menos ou caem
+  \item Momentum v1 sofre perdas severas em viradas rápidas de regime (drawdowns de 40-60\%)
 \end{itemize}
 \vspace{.3em}
-\begin{alertblock}{Sinal 12-1 sem ajuste de vol}
-  Compra ativos de alto retorno recente $\approx$ compra ativos de alta vol/beta.
-  Em crises, isso amplifica as perdas.
+\begin{alertblock}{Solução de Normalização}
+  Dividir o sinal pela volatilidade rolling de 63 dias úteis remove o viés de alto beta e estabiliza a exposição ao fator de momentum.
 \end{alertblock}
   \column{0.47\textwidth}
-\begin{block}{Solução: Vol-Adjustment}
+\begin{block}{Vol-Adjustment}
 
 \textbf{Moskowitz, Ooi \& Pedersen (2012):}
 \[
@@ -120,49 +118,12 @@ $\hat\sigma_{i,t}$: volatilidade rolling dos últimos 63 dias úteis.
 \begin{itemize}
   \item Normaliza o sinal pela volatilidade corrente
   \item Ativos mais voláteis recebem sinal ``deflacionado''
-  \item Melhora IC e reduz tail risk
-  \item Alinha com risk parity dos pesos
+  \item Melhora substancial do IC ajustado a risco
 \end{itemize}
 \end{block}\vspace{.3em}
 \begin{exampleblock}{Evidência}
-Moskowitz et al.\ documentam melhora de Sharpe em ações, bonds, commodities e moedas.
+Moskowitz et al.\ documentam melhora robusta de Sharpe em múltiplas classes de ativos.
 \end{exampleblock}
-\end{columns}
-\end{frame}
-
-\begin{frame}[fragile]{Comparação Fair: v1 vs v2}
-\begin{columns}[T]
-  \column{0.5\textwidth}
-\textbf{Protocolo de comparação:}
-\begin{enumerate}
-  \item Mesmo universo de ativos
-  \item Mesmo período de análise
-  \item Mesma regra de portfólio (top 20\%, equal-weight)
-  \item Mesma modelagem de custos (turnover $\times$ 0{,}1\%)
-\end{enumerate}
-\vspace{.3em}
-\textbf{Métricas de comparação:}
-\begin{itemize}
-  \item IC médio: poder preditivo bruto do sinal
-  \item Sharpe ratio do portfólio
-  \item Maximum drawdown
-  \item Correlation entre sinal v1 e v2: quanto diferem?
-\end{itemize}
-  \column{0.47\textwidth}
-\begin{block}{Quando v2 ajuda?}
-\begin{itemize}
-  \item Ambientes de alta volatilidade (crises, pandemia)
-  \item Quando os ``vencedores'' são concentrados em setores de alto beta
-  \item Quando há momentum crash latente (beta do portfólio > 1{,}2)
-\end{itemize}
-\end{block}\vspace{.3em}
-\begin{alertblock}{Quando v2 não ajuda?}
-\begin{itemize}
-  \item Mercados trending com baixa dispersão de vol
-  \item Quando todos os ativos têm vol similar (correlação alta)
-  \item Períodos de vol muito baixa — normalização é instável
-\end{itemize}
-\end{alertblock}
 \end{columns}
 \end{frame}
 
@@ -171,10 +132,9 @@ Moskowitz et al.\ documentam melhora de Sharpe em ações, bonds, commodities e 
   \column{0.52\textwidth}
 \begin{block}{Funções a implementar}
 \begin{itemize}
-  \item \texttt{calcular\_vol\_rolling(ret\_diarios, janela=63)} $\to$ vol mensal estimada
-  \item \texttt{alinhar\_vol\_com\_sinal(vol, sinal)} $\to$ vol no mesmo index
+  \item \texttt{calcular\_vol\_rolling(ret\_diarios, janela=63)} $\to$ vol rolling diária
   \item \texttt{calcular\_sinal\_v2(sinal\_v1, vol)} $\to$ sinal normalizado
-  \item \texttt{comparar\_ic(sinal\_v1, sinal\_v2, ret)} $\to$ DataFrame comparativo
+  \item \texttt{comparar\_ic(sinal\_v1, sinal\_v2, ret)} $\to$ DataFrame de Spearman IC
 \end{itemize}
 \end{block}
   \column{0.45\textwidth}
@@ -190,7 +150,7 @@ Moskowitz et al.\ documentam melhora de Sharpe em ações, bonds, commodities e 
 \begin{itemize}
   \item \texttt{sinal\_v2.parquet}
   \item \texttt{pesos\_v2.parquet}
-  \item Gráfico comparativo IS v1 vs v2
+  \item Gráfico comparativo de performance v1 vs v2
 \end{itemize}
 \end{exampleblock}
 \end{columns}
@@ -203,7 +163,6 @@ Moskowitz et al.\ documentam melhora de Sharpe em ações, bonds, commodities e 
   \item \textbf{Moskowitz, T., Ooi, Y. \& Pedersen, L.} (2012). Time series momentum. \textit{Journal of Financial Economics}, 104(2), 228--250.
   \item \textbf{Daniel, K. \& Moskowitz, T.} (2016). Momentum crashes. \textit{JFE}, 122(2), 221--247.
   \item \textbf{Barroso, P. \& Santa-Clara, P.} (2015). Momentum has its moments. \textit{JFE}, 116(1), 111--120.
-  \item \textbf{Jegadeesh, N. \& Titman, S.} (1993). Returns to buying winners. \textit{Journal of Finance}, 48(1), 65--91.
   \item \textbf{Asness, C. et al.} (2013). Value and momentum everywhere. \textit{Journal of Finance}, 68(3), 929--985.
 \end{itemize}
 \end{multicols}

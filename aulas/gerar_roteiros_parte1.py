@@ -89,12 +89,12 @@ def aula01():
     doc = novo_doc("01", "Kickoff: Fundamentos do Mercado Financeiro")
 
     h1(doc, "ABERTURA")
-    tempo(doc, "0:00 – 0:05  |  Apresentacao e contexto")
+    tempo(doc, "0:00 – 0:03  |  Apresentacao e contexto")
     div(doc)
 
     fala(doc, "Pessoal, boa tarde e bem-vindos ao Intensivao Quant AI da ImpactUFSCar. Quem ainda nao me conhece, meu nome e Felipe Maldonado, sou VP e lider tecnico da Diretoria Quant.")
-    fala(doc, "Nas proximas cinco semanas — dez aulas ao todo — vamos construir juntos uma estrategia quantitativa completa. Do zero absoluto ao relatorio final, pronto para ser apresentado ao juri do Desafio Quant AI da Itau Asset Management.")
-    fala(doc, "O formato vai ser sempre o mesmo em cada aula: primeiro a gente passa por teoria — de 20 a 30 minutos — para entender o porque de cada decisao que vamos tomar. Depois e live coding: eu digito na frente de voces, voces replicam no computador de voces. Ao final de cada aula, voces tem um notebook funcionando que avanca a estrategia um passo.")
+    fala(doc, "Nas proximas cinco semanas — nove aulas ao todo — vamos construir juntos uma estrategia quantitativa completa. Do zero absoluto ao relatorio final, pronto para ser apresentado ao juri do Desafio Quant AI da Itau Asset Management.")
+    fala(doc, "O formato vai ser sempre o mesmo em cada aula: primeiro a gente passa por teoria — cerca de 20 minutos — para entender o porque de cada decisao que vamos tomar. Depois e live coding de 40 minutos: eu digito na frente de voces, voces replicam no computador de voces. Ao final de cada aula de 60 minutos, voces tem um notebook funcionando que avanca a estrategia um passo.")
     fala(doc, "Hoje e a aula de kickoff. A mais teorica de todas. Nao vamos escrever muito codigo hoje — mas o que a gente discutir aqui e a fundacao conceitual de tudo que vem depois. Se voces entenderem bem o que e momentum, por que ele existe e por que persiste, voces vao conseguir defender cada decisao da estrategia quando o juri perguntar.")
 
     acao(doc, "Verificar com a turma: todos tem Python e Jupyter instalados? Quem ainda nao tem, orientar para instalar durante a semana")
@@ -102,7 +102,7 @@ def aula01():
 
     div(doc)
     h1(doc, "PARTE 1 — O ECOSSISTEMA FINANCEIRO")
-    tempo(doc, "0:05 – 0:20  |  Classes de ativos e seus papeis")
+    tempo(doc, "0:03 – 0:13  |  Classes de ativos e seus papeis")
     div(doc)
 
     acao(doc, "Avancar para o slide 3: O Ecossistema Financeiro Global")
@@ -136,7 +136,7 @@ def aula01():
 
     div(doc)
     h1(doc, "PARTE 2 — TEORIA DE PORTFOLIO E MERCADOS EFICIENTES")
-    tempo(doc, "0:20 – 0:35  |  MPT, CAPM e HME")
+    tempo(doc, "0:13 – 0:23  |  MPT, CAPM e HME")
     div(doc)
 
     acao(doc, "Avancar para o slide 7: Teoria Moderna de Portfolio")
@@ -155,7 +155,7 @@ def aula01():
 
     div(doc)
     h1(doc, "PARTE 3 — ANOMALIAS E FACTOR INVESTING")
-    tempo(doc, "0:35 – 0:55  |  Fatores, anomalias e momentum")
+    tempo(doc, "0:23 – 0:33  |  Fatores, anomalias e momentum")
     div(doc)
 
     acao(doc, "Avancar para o slide 9: Anomalias de Mercado")
@@ -174,7 +174,7 @@ def aula01():
 
     div(doc)
     h1(doc, "PARTE 4 — O EFEITO MOMENTUM E BEHAVIORAL FINANCE")
-    tempo(doc, "0:55 – 1:20  |  A nossa tese de investimento")
+    tempo(doc, "0:33 – 0:43  |  A nossa tese de investimento")
     div(doc)
 
     acao(doc, "Avancar para o slide 11: O Efeito Momentum")
@@ -204,7 +204,7 @@ def aula01():
 
     div(doc)
     h1(doc, "PARTE 5 — O DESAFIO ITAU E NOSSA ESTRATEGIA")
-    tempo(doc, "1:20 – 1:40  |  Contexto da competicao e o que vamos construir")
+    tempo(doc, "0:43 – 0:53  |  Contexto da competicao e o que vamos construir")
     div(doc)
 
     acao(doc, "Avancar para o slide 14: O Desafio Itau")
@@ -223,13 +223,13 @@ def aula01():
     fala(doc, "Cada uma dessas decisoes tem fundamento — e voces vao ser capazes de defender cada uma delas ao juri.")
 
     acao(doc, "Avancar para o slide 16: Roadmap")
-    h2(doc, "Roadmap das 10 Aulas")
-    fala(doc, "Aqui esta o mapa do que vamos construir. Aula 1 e hoje — fundamentos. Aula 2: coleta e limpeza de dados. Aula 3: analise exploratoria. Aula 4: construir o sinal v1. Aula 5: primeiro backtest completo. Aula 6: esquemas de alocacao. Aula 7: sinal v2 ajustado por volatilidade. Aula 8: backtest rigoroso — a aula mais importante para o juri. Aula 9: usar GenAI para acelerar a analise. Aula 10: relatorio final e preparacao para a defesa.")
+    h2(doc, "Roadmap das 9 Aulas")
+    fala(doc, "Aqui esta o mapa do que vamos construir. Aula 1 e hoje — fundamentos. Aula 2: coleta e limpeza de dados. Aula 3: analise exploratoria. Aula 4: construir o sinal v1. Aula 5: primeiro backtest completo. Aula 6: esquemas de alocacao. Aula 7: sinal v2 ajustado por volatilidade. Aula 8: backtest rigoroso — a aula mais importante para o juri. Aula 9: GenAI, relatorio final e preparacao para a defesa.")
     fala(doc, "Cada aula entrega um parquet — um arquivo de dados — que a proxima aula consome. No final do intensivao, voces tem uma pipeline completa e reprodutivel.")
 
     div(doc)
     h1(doc, "PARTE 6 — LIVE CODING: SETUP E EXPLORACAO")
-    tempo(doc, "1:40 – 2:00  |  Configurar ambiente, explorar estrutura do projeto")
+    tempo(doc, "0:53 – 0:57  |  Configurar ambiente, explorar estrutura do projeto")
     div(doc)
 
     fala(doc, "Agora vamos ao computador. Abram o terminal.")
@@ -252,7 +252,7 @@ def aula01():
 
     div(doc)
     h1(doc, "FECHAMENTO DA AULA 1")
-    tempo(doc, "1:55 – 2:00")
+    tempo(doc, "0:57 – 1:00")
     div(doc)
     fala(doc, "Pessoal, e isso para a Aula 1. Hoje a gente construiu a base teorica: entendemos as classes de ativos, a teoria de portfolio, a hipotese de mercados eficientes, o que sao anomalias e fatores, e o efeito momentum com sua justificativa comportamental.")
     fala(doc, "Para a proxima semana: instalem tudo, clonem o repositorio, rodem o notebook da Aula 1. Na Aula 2 vamos comecar a colocar a mao na massa de verdade — coletar os dados de todas as acoes do IBOVESPA e construir o pipeline de dados que vai servir de base para o restante do intensivao.")
@@ -271,14 +271,14 @@ def aula02():
     doc = novo_doc("02", "Dados: Coleta, Limpeza e Pipeline")
 
     h1(doc, "ABERTURA")
-    tempo(doc, "0:00 – 0:05  |  Recap e contexto da aula")
+    tempo(doc, "0:00 – 0:03  |  Recap e contexto da aula")
     div(doc)
     fala(doc, "Pessoal, bem-vindos a Aula 2. Na semana passada a gente construiu a base conceitual — entendemos por que momentum existe e o que queremos construir. Hoje a gente bota a mao na massa de verdade: vamos coletar dados, limpar e construir o pipeline que todas as proximas aulas vao usar.")
     fala(doc, "Uma coisa que quero deixar clara logo no inicio: a qualidade dos dados e a parte mais subestimada de qualquer estrategia quant. Nao e a parte mais glamourosa — mas e onde a maioria dos erros acontece. Dados ruins geram backtests errados que geram conclusoes erradas. A gente vai ser obsessivos com qualidade aqui.")
 
     div(doc)
-    h1(doc, "PARTE 1 — TEORIA (30 min)")
-    tempo(doc, "0:05 – 0:30")
+    h1(doc, "PARTE 1 — TEORIA (20 min)")
+    tempo(doc, "0:03 – 0:20")
     div(doc)
 
     acao(doc, "Avancar para slide 3: O IBOVESPA")
@@ -303,8 +303,8 @@ def aula02():
     fala(doc, "Por que parquet e nao CSV? Tres razoes principais. Velocidade: um parquet com 10 anos de dados de 77 acoes carrega em menos de 1 segundo. Um CSV equivalente leva 10 a 30 segundos e ainda pode ter problemas de parse. Tipos: o parquet preserva os tipos de dados — datetime64, float64 — automaticamente. Com CSV, o pandas precisa inferir os tipos na leitura, o que as vezes erra. E tamanho: com compressao snappy, o parquet e tipicamente 5 a 10 vezes menor que o CSV equivalente.")
 
     div(doc)
-    h1(doc, "PARTE 2 — LIVE CODING (90 min)")
-    tempo(doc, "0:30 – 2:00")
+    h1(doc, "PARTE 2 — LIVE CODING (40 min)")
+    tempo(doc, "0:20 – 0:55")
     div(doc)
 
     acao(doc, "Abrir notebook: aulas/aula-02-dados/aula-02-dados.ipynb")
@@ -446,7 +446,7 @@ def aula02():
 
     div(doc)
     h1(doc, "FECHAMENTO DA AULA 2")
-    tempo(doc, "1:55 – 2:00")
+    tempo(doc, "0:55 – 1:00")
     div(doc)
     fala(doc, "Pessoal, excelente trabalho hoje. A gente construiu o pipeline de dados do intensivao. Tres parquets limpos, prontos para uso.")
     fala(doc, "Para a proxima aula: confiram que os tres parquets foram gerados na pasta dados/. Tentem carregar cada um com pd.read_parquet e verificar o shape. Se der qualquer erro, me avisem.")
@@ -464,14 +464,14 @@ def aula03():
     doc = novo_doc("03", "EDA: Analise Exploratoria dos Retornos")
 
     h1(doc, "ABERTURA")
-    tempo(doc, "0:00 – 0:05")
+    tempo(doc, "0:00 – 0:03")
     div(doc)
     fala(doc, "Bem-vindos a Aula 3. Na semana passada a gente coletou e limpou os dados — temos tres parquets prontos. Hoje vamos fazer o EDA: Exploratory Data Analysis. Isso significa olhar para os dados com curiosidade antes de tomar qualquer decisao.")
     fala(doc, "Parece uma etapa burocratica? Nao e. O EDA e onde voce descobre os problemas que o pipeline de limpeza nao pegou, os padroes que vao guiar as decisoes de design da estrategia, e as armadilhas que poderiam sabotar o backtest. Nunca pule o EDA.")
 
     div(doc)
-    h1(doc, "PARTE 1 — TEORIA (25 min)")
-    tempo(doc, "0:05 – 0:30")
+    h1(doc, "PARTE 1 — TEORIA (20 min)")
+    tempo(doc, "0:03 – 0:20")
     div(doc)
 
     acao(doc, "Avancar slide 3: Distribuicao de Retornos")
@@ -493,7 +493,7 @@ def aula03():
     fala(doc, "Regra pratica: NUNCA modele precos diretamente. Sempre transforme em retornos primeiro.")
 
     div(doc)
-    h1(doc, "PARTE 2 — LIVE CODING (90 min)")
+    h1(doc, "PARTE 2 — LIVE CODING (40 min)")
     tempo(doc, "0:30 – 2:00")
     div(doc)
 
@@ -638,7 +638,7 @@ def aula03():
 
     div(doc)
     h1(doc, "FECHAMENTO DA AULA 3")
-    tempo(doc, "1:55 – 2:00")
+    tempo(doc, "0:55 – 1:00")
     div(doc)
     fala(doc, "Excelente. Hoje a gente fez a analise exploratoria completa. Os insights principais: retornos tem fat tails — o Sharpe vai subestimar risco. Correlacoes sao dinamicas — em crises, diversificacao falha. E retornos sao estacionarios, precos nao — sempre usar retornos.")
     fala(doc, "Para a proxima aula: revisitem os graficos que geramos hoje. Eles vao aparecer de novo no relatorio final. Na Aula 4, vamos construir o primeiro sinal — o momentum 12-1.")

@@ -58,7 +58,7 @@
 \lstset{style=python}
 
 \author{Felipe Maldonado\\{\scriptsize VP Diretoria Quant~\textbullet{}~Impact UFSCAR}}
-\date{Intensivão Quant AI 2025}
+\date{Intensivão Quant AI 2026}
 \title{Aula 05 --- Backtest v1}
 \subtitle{Construindo e Avaliando o Primeiro Backtest}
 
@@ -71,18 +71,18 @@
 \begin{frame}[fragile]{Nesta Aula}
 \begin{columns}[T]
   \column{0.5\textwidth}
-\begin{block}{Teoria (30 min)}
+\begin{block}{Teoria (20 min)}
 \begin{itemize}
   \item Hipóteses do backtest: o que estamos testando?
   \item Métricas de performance: Sharpe, Sortino, MDD, Calmar
   \item O problema do look-ahead bias: shift(1)
-  \item Custos de transação: modelagem simplificada
+  \item A importância de usar pesos realistas
 \end{itemize}
 \end{block}
   \column{0.47\textwidth}
-\begin{block}{Código (70 min)}
+\begin{block}{Código (40 min)}
 \begin{itemize}
-  \item \texttt{construir\_portfolio()} — top 20\%, shift(1)
+  \item \texttt{construir\_portfolio()} — top 10\%, weights.shift(1)
   \item \texttt{calcular\_metricas()} — todas as métricas de uma vez
   \item Equity curve e drawdown chart
   \item Análise de retornos por ano (heatmap)
@@ -109,10 +109,10 @@ $\sigma_{\text{neg}}$: desvio padrão apenas dos retornos negativos.
   \column{0.47\textwidth}
 \begin{block}{Referências de Mercado}
 \begin{itemize}
-  \item Sharpe $> 1{,}0$: bom (geralmente difícil de alcançar)
-  \item Sharpe $> 0{,}5$: aceitável para long-only
-  \item MDD $< 20\%$: confortável para maioria dos mandatos
-  \item Calmar $> 0{,}5$: risco/retorno razoável
+  \item Sharpe $> 1{,}0$: excelente (difícil na realidade brasileira)
+  \item Sharpe $> 0{,}5$: bom para estratégias long-only no IBOV
+  \item MDD $< 20\%$: confortável para a maioria das gestoras
+  \item Calmar $> 0{,}5$: relação risco/retorno aceitável
 \end{itemize}
 \end{block}\vspace{.3em}
 \begin{exampleblock}{CAGR — Retorno Anualizado}
@@ -143,19 +143,11 @@ pesos = construir_pesos(sinal)
 ret_carteira = (pesos.shift(1) * ret_mensais).sum(axis=1)
 \end{lstlisting}
   \column{0.47\textwidth}
-\begin{block}{Custos de Transação}
-\begin{itemize}
-  \item Modelagem simplificada: $c = 0{,}1\%$ por operação
-  \item Turnover mensal: $\sum_i |w_{i,t} - w_{i,t-1}|$
-  \item Custo total: Turnover $\times c$
-  \item Em média: momentum tem turnover de 30--50\% a.m.
-\end{itemize}
-\end{block}\vspace{.3em}
 \begin{alertblock}{Hipóteses do backtest}
 \begin{itemize}
   \item Execução ao preço de fechamento do mês
-  \item Liquidez infinita (sem market impact)
-  \item Sem short: long-only com equal-weight no top 20\%
+  \item Liquidez infinita (sem market impact inicial)
+  \item Sem short: long-only com equal-weight no top 10\%
   \item Benchmark: IBOVESPA (BOVA11)
 \end{itemize}
 \end{alertblock}
@@ -167,7 +159,7 @@ ret_carteira = (pesos.shift(1) * ret_mensais).sum(axis=1)
   \column{0.52\textwidth}
 \begin{block}{Funções a implementar}
 \begin{itemize}
-  \item \texttt{construir\_portfolio(sinal, ret, n\_pct=0.2)} $\to$ retornos da carteira
+  \item \texttt{construir\_portfolio(sinal, ret, n\_pct=0.1)} $\to$ retornos da carteira
   \item \texttt{calcular\_metricas(ret, rf=0.1025)} $\to$ dicionário de métricas
   \item \texttt{exibir\_metricas(metricas)} $\to$ tabela formatada
   \item \texttt{plot\_equity\_drawdown(ret)} $\to$ equity curve + MDD
@@ -197,7 +189,6 @@ ret_carteira = (pesos.shift(1) * ret_mensais).sum(axis=1)
   \item \textbf{Sharpe, W.} (1966). Mutual fund performance. \textit{Journal of Business}, 39(1), 119--138.
   \item \textbf{Sortino, F. \& van der Meer, R.} (1991). Downside risk. \textit{Journal of Portfolio Management}, 17(4), 27--31.
   \item \textbf{Jegadeesh, N. \& Titman, S.} (1993). Returns to buying winners. \textit{Journal of Finance}, 48(1), 65--91.
-  \item \textbf{Korajczyk, R. \& Sadka, R.} (2004). Are momentum profits robust to trading costs? \textit{Journal of Finance}, 59(3), 1039--1082.
   \item \textbf{Bailey, D. \& López de Prado, M.} (2014). The deflated Sharpe ratio. \textit{JPM}, 40(5).
 \end{itemize}
 \end{multicols}

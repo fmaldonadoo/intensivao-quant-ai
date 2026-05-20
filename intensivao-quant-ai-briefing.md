@@ -36,7 +36,7 @@ Felipe constrói uma estratégia quantitativa real do zero ao longo das 10 aulas
 
 **Não é** aula expositiva seguida de exercício. É o instrutor mostrando a cozinha — a tese vira código, o código vira backtest, o backtest vira relatório.
 
-### Formato de cada aula (2h)
+### Formato de cada aula (60 min)
 
 Cada aula alterna entre células markdown (teoria, motivação, contexto) e células de código (implementação). A teoria não existe separada do código — ela aparece como narração do que está sendo construído, no momento em que o código precisa dela.
 
@@ -50,7 +50,7 @@ Exemplo do que isso parece:
 [código]   plot comparando os dois acumulados
 ```
 
-**Distribuição de tempo por aula:** ~1h teoria (via markdown + explicação ao vivo) / ~1h codificação ativa.
+**Distribuição de tempo por aula:** 20 minutos de teoria intuitiva (visuais claros, matemática simplificada e conceitual) / 40 minutos de codificação ativa (passo a passo detalhado).
 
 ### Material principal
 
@@ -81,32 +81,31 @@ Todas as 7 equipes constroem a **mesma estratégia** que Felipe constrói ao viv
 
 ---
 
-## 4. Estrutura das 10 aulas
+## 4. Estrutura das 9 aulas (60 min: 20m Teoria + 40m Código)
 
 ### Sprint 1 — Construir os trilhos (Semanas 1–2)
 
-| # | Tema | Teoria do dia | O que Felipe constrói ao vivo | Replica em casa |
+| # | Tema | Teoria do dia (20 min) | O que Felipe constrói ao vivo (40 min) | Replica em casa |
 |---|---|---|---|---|
-| 1 | Kick-off | O que é estratégia quant; os 7 critérios e pesos; o que é momentum (intuitivo); o que separa backtest honesto de ruim | Preview do produto final (mostrar o backtest da aula 5 pronto) | Instalar ambiente, clonar repo |
-| 2 | Setup + dados | Série temporal de preços; retorno simples vs log; dividendos e splits; janelas de tempo | Baixar tickers do IBOV, montar DataFrame de retornos diários, primeiro plot | Rodar o notebook, explorar os dados |
-| 3 | EDA + limpeza | Esperança e variância; distribuição de retornos (fat tails, curtose, assimetria); estacionariedade; autocorrelação; lei dos grandes números; por que filtrar liquidez | Tratar missing data, filtro de liquidez, distribuição dos retornos, rolling stats | EDA documentada do próprio dataset |
-| 4 | Sinal v1 | Probabilidade condicional como fundamento do momentum; Jegadeesh & Titman 1993; cross-seccional vs time-series; por que janela 12-1; long-only vs long-short | Calcular sinal 12-1, ranquear ativos, selecionar top N, equal weight | Testar parâmetros diferentes (janela, N) |
+| 1 | Kick-off | O que é estratégia quant; os 7 critérios e pesos do Itaú; o que é momentum; o que separa backtest honesto de ruim. | Apresentação do produto final (ver o backtest da aula 5 funcionando) | Instalar ambiente, clonar repo. |
+| 2 | Setup + dados | Universo IBOVESPA; pipeline de dados; dividendos/splits de forma simples; sobrevivência (survivorship bias) intuitiva. | Coleta real via `yfinance` (2012-2024), forward-fill e Parquet (`dados/precos_ibov.parquet`). | Rodar o notebook, explorar os dados. |
+| 3 | EDA + limpeza | Média, desvio padrão, assimetria, curtose. Por que retornos de ações reais têm caudas pesadas e a Normal falha. | Plotar histograma + QQ-Plot vs. Normal. Scatter plot de Risco vs Retorno. Heatmap de correlações setoriais simples. | EDA documentada do próprio dataset. |
+| 4 | Sinal v1 — Momentum | Jegadeesh & Titman 1993; por que janela 12-1 e skip do mês recente; Information Coefficient (IC) de Spearman. | Calcular sinal 12-1 em pandas, ranking percentil cross-seccional (`.rank(pct=True)`), calcular/plotar IC. | Testar parâmetros diferentes de janela e N. |
+| 5 | Backtest v1 | Simulação sem look-ahead bias; por que usar `weights.shift(1)`; CAGR e Sharpe Ratio explicados detalhadamente. | Selecionar Top 10 ativos, portfólio Equal-Weight, curva de capital acumulada, Sharpe, Max Drawdown vs. IBOVESPA. | Gerar as métricas do próprio backtest. |
 
 ### Sprint 2 — Sofisticar e validar (Semanas 3–4)
 
-| # | Tema | Teoria do dia | O que Felipe constrói ao vivo | Replica em casa |
+| # | Tema | Teoria do dia (20 min) | O que Felipe constrói ao vivo (40 min) | Replica em casa |
 |---|---|---|---|---|
-| 5 | Backtest v1 | Retorno acumulado; Sharpe ratio (derivação intuitiva, anualização); drawdown e max drawdown; alpha e beta | Backtest vetorizado, curva de capital, métricas vs IBOV | Gerar as métricas do próprio backtest |
-| 6 | Alocação | Álgebra linear: portfólio como produto de vetores (`w · r`), variância como `wᵀΣw`; Markowitz (intuitivo); por que equal weight frequentemente vence; risk parity | Trocar equal weight por signal-weighted, calcular `wᵀΣw`, comparar abordagens | Testar risk parity como alternativa |
-| 7 | Sinal v2 | Volatilidade e o que mede; rolling statistics; por que normalizar sinal por vol; o que é turnover | Dividir sinal por volatilidade rolling (vol-adjusted momentum), comparar v1 vs v2 | Comparar sinal v1 vs v2 no próprio backtest |
-| 8 | Backtest rigoroso | Look-ahead bias; overfitting; multiple testing e p-value; deflated Sharpe (intuitivo); custos reais de transação; walk-forward | Adicionar custos, implementar walk-forward, discutir significância estatística | Rodar bateria completa de métricas |
+| 6 | Alocação — Markowitz | Teoria Moderna de Portfólio (1952); trade-off risco-retorno; instabilidade prática de Markowitz; restrições long-only e caps. | Implementar otimização de Markowitz para Sharpe máx. via `scipy.optimize.minimize`. Comparar curvas e turnover vs EW. | Testar otimização com limites diferentes por ativo. |
+| 7 | Sinal v2 — Vol-Adjusted | Momentum Crashes (Daniel & Moskowitz 2016); por que momentum compra alto beta em bolhas; normalização por vol rolling. | Calcular vol rolling de 63d, sinal v2 (retorno 12-1 / vol). Comparar IC e drawdown de v1 vs v2. | Comparar v1 vs v2 no próprio backtest. |
+| 8 | Backtest rigoroso | Look-ahead bias avançado, turnover mensal, custos reais de transação (0.3% corretagem/taxas/slippage). | Calcular turnover mensal ($\sum \|w_t - w_{t-1}\| / 2$), aplicar drag de 0.3%, simular curva de retorno líquida. | Rodar bateria completa de métricas líquidas. |
 
-### Sprint 3 — Fechar (Semana 5)
+### Sprint 3 — Fechar e Apresentar (Semana 5)
 
-| # | Tema | Teoria do dia | O que Felipe constrói ao vivo | Replica em casa |
+| # | Tema | Teoria do dia (20 min) | O que Felipe constrói ao vivo (40 min) | Replica em casa |
 |---|---|---|---|---|
-| 9 | GenAI + análise | Como LLMs funcionam (5 min); onde GenAI entra no processo quant; como escrever prompts técnicos; visualizações que a banca quer ver | Usar Claude para redigir seção de análise, gerar visualizações para o relatório | Rascunho das seções 1–4 do relatório |
-| 10 | Relatório + defesa | Como a banca avalia pelos 7 critérios; por que o que NÃO funcionou conta; como defender escolhas metodológicas | Revisão cruzada ao vivo — cada equipe apresenta 5 min, Felipe comenta | Relatório quase final |
+| 9 | GenAI, Relatório & Defesa | Como a banca do Itaú avalia pelos 7 critérios; uso prático de LLMs (Claude) para redação técnica, análise crítica e pitch. | Criar prompts estruturados para Claude analisar métricas líquidas, gerar narrativa de risco e estruturar o PDF do relatório. | Rascunho final do relatório e pitch de 5 min. |
 
 **Pós-intensivão (Junho–Agosto).** Mentoria quinzenal por equipe até a entrega. Dois checkpoints internos: backtest funcionando (mid-julho) e relatório em rascunho (início de agosto).
 
@@ -129,7 +128,7 @@ Todas as 7 equipes constroem a **mesma estratégia** que Felipe constrói ao viv
 
 ## 6. Constraints fixos
 
-- **Janela:** 5 semanas, 10 aulas, 2h cada (20h totais).
+- **Janela:** 5 semanas, 9 aulas, 1h cada (9h totais).
 - **Início recomendado:** semana de 18/05/2026, para ganhar uma semana antes do kick-off oficial do Itaú em 26/05/2026.
 - **Entrega final do relatório:** 17/08/2026.
 - **Calendário UFSCar 2026/1:** período termina em 18/07; recesso 21/07–16/08; período 2026/2 começa em 17/08 — dia da entrega.

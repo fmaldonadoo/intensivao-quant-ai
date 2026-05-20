@@ -100,7 +100,7 @@ def capa(prs, num, titulo, subtitulo, temas):
 def agenda(prs, teoria, codigo):
     s = blank(prs)
     rect(s, 0, 0, W, H, fill=WHITE)
-    header(s, "Estrutura da Aula", "~30 min de teoria + ~90 min de live coding")
+    header(s, "Estrutura da Aula", "20 min de teoria + 40 min de live coding")
     rect(s, 0.4, 1.25, 6.1, 5.55, fill=LIGHT)
     rect(s, 0.4, 1.25, 6.1, 0.42, fill=NAVY)
     txt(s, 0.6, 1.3, 5.8, 0.36, "Fundamentos (teoria)", size=13, bold=True, color=WHITE)
@@ -612,64 +612,60 @@ def gerar_aula05():
     print(f"  Aula 05: {len(prs.slides)} slides -> aula-05-backtest-v1/")
 
 
-# ══════════════════════════════════════════════════════════
-# AULA 06 — ALOCACAO
-# ══════════════════════════════════════════════════════════
 def gerar_aula06():
     prs = new_prs()
     capa(prs, "06", "Alocacao: Como Pesar as Acoes do Portfolio",
          "O sinal diz QUAIS acoes comprar — a alocacao diz QUANTO de cada uma",
          ["Por que a escolha do esquema de pesos importa tanto quanto o sinal",
-          "Equal-weight (1/N): simplicidade, robustez e o resultado surpresa de DeMiguel (2009)",
-          "Vol-weight: reduzir contribuicao de ativos mais arriscados ao risco total",
-          "Otimizacao de Markowitz: teoria da fronteira eficiente vs pratica",
-          "Comparar as tres abordagens no mesmo sinal e tirar conclusoes"])
+          "Equal-weight (1/N): simplicidade, robustez e o resultado de DeMiguel (2009)",
+          "Otimizacao de Markowitz (Teoria Moderna de Portfolio): trade-off risco-retorno",
+          "Instabilidade dos pesos teoricos e a necessidade de restricoes (bounds, caps)",
+          "Comparar as duas abordagens no mesmo sinal e tirar conclusoes"])
 
     agenda(prs,
         ["Equal-weight: por que 1/N supera MV fora da amostra",
-         "Vol-weight: logica do risk parity simplificado",
          "Markowitz: onde a teoria encontra a realidade",
-         "Turnover: custo oculto da rebalanceamento"],
+         "Instabilidade dos pesos e erro de estimativa",
+         "Como regularizar: restricoes e limites de peso"],
         ["Implementar equal-weight (baseline)",
-         "Implementar vol-weight (1/volatilidade normalizada)",
-         "Implementar MV otimizado (scipy minimize)",
-         "Comparar metricas das tres abordagens",
-         "Analisar turnover e concentracao de cada esquema"])
+         "Implementar Markowitz otimizado (scipy minimize)",
+         "Impor restricoes de soma=1 e bounds (0 a 20%)",
+         "Comparar metricas e turnover das duas abordagens",
+         "Analisar turnover e concentracao de pesos"])
 
     # Slide 3: Esquemas de pesos
     s = blank(prs)
     rect(s, 0, 0, W, H, fill=WHITE)
-    header(s, "Esquemas de Alocacao — Tres Abordagens",
-           "Da mais simples a mais sofisticada — nem sempre a mais complexa vence")
+    header(s, "Esquemas de Alocacao — Duas Abordagens",
+           "Da mais simples a mais sofisticada — a importância das restrições")
     txt(s, 0.5, 1.28, 12.3, 0.42,
         "A alocacao de capital entre os ativos selecionados e uma decisao separada do sinal. "
         "Diferentes esquemas de pesagem podem ter grande impacto no Sharpe, drawdown e turnover "
-        "— e a melhor escolha frequentemente nao e a mais matematicamente sofisticada.",
+        "— e a melhor escolha frequentemente requer restricoes pragmaticas.",
         size=13, color=NAVY)
     rect(s, 0.5, 1.83, 12.3, 0.03, fill=GOLD)
     card2(s, 0.4, 1.98, 3.98, 4.82, "Equal-Weight (1/N)", GREEN,
-          ["Peso de cada acao: 1 / n_acoes_selecionadas",
+          ["Peso de cada acao: 1 / n_top (ex: 10%)",
            "Maxima diversificacao entre os selecionados",
            "DeMiguel et al. (2009): supera MV em 14 datasets",
            "Robusto a erros de estimacao de parametros",
            "Baixo turnover por ser simetrico e simples",
            "Nossa baseline: o benchmark de comparacao"])
-    card2(s, 4.67, 1.98, 3.98, 4.82, "Vol-Weight (Risk Parity simples)", BLUE,
-          ["Peso proporcional a 1/volatilidade_historica",
-           "Acoes mais volateis recebem peso menor",
-           "Logica: equalizar contribuicao ao risco (nao ao capital)",
-           "Vol estimada: desvio-padrao dos ultimos 63 dias uteis",
-           "Pesos normalizados: somam 1 (long-only, sem alavancagem)",
-           "Reduz dependencia de acoes muito volateis (ex: small caps)"])
-    card2(s, 8.95, 1.98, 3.98, 4.82, "Markowitz (MV Otimizado)", RED,
-          ["Maximizar Sharpe: max E[r]/σ sujeito a w >= 0, sum(w) = 1",
-           "Requer estimacao de vetor de retornos esperados e matriz Σ",
-           "Problema: parametros estimados com erro amostral grande",
-           "Resultado: pesos concentrados e instáveis entre periodos",
-           "Turnover muito alto: custo de transacao elimina o alpha teorico",
-           "Na pratica: regularizacao (Black-Litterman, shrinkage) e necessaria"])
-    ref(s, "DeMiguel, V., Garlappi, L. & Uppal, R. (2009). Optimal Versus Naive Diversification. "
-           "Review of Financial Studies, 22(5), 1915–1953")
+    card2(s, 4.67, 1.98, 3.98, 4.82, "Markowitz Puro (MV)", RED,
+          ["Maximizar Sharpe Ratio: max E[r]/σ",
+           "Requer estimacao de vetor de retornos e matriz Σ",
+           "Instabilidade: extremamente sensivel a erros de estimacao",
+           "Resultado real: pesos ultra concentrados in poucos ativos",
+           "Turnover insustentavel e pesos oscilando agressivamente",
+           "Na pratica: inviavel sem regularizacao robusta"])
+    card2(s, 8.95, 1.98, 3.98, 4.82, "Markowitz Restrito (Long-Only + Bounds)", NAVY,
+          ["Maximizar Sharpe sujeito a restricoes realistas",
+           "Soma dos pesos = 1 (100% alocado, sem alavancagem)",
+           "Bounds: limites de peso por ativo (ex: entre 0% e 20%)",
+           "Evita concentracao excessiva e reduz instabilidade",
+           "Turnover significativamente menor que a versao pura",
+           "Otimizacao feita via scipy.optimize.minimize"])
+    ref(s, "DeMiguel, V., Garlappi, L. & Uppal, R. (2009). Optimal Versus Naive Diversification. RFS, 22(5)")
 
     # Slide 4: Turnover
     s = blank(prs)
@@ -691,8 +687,8 @@ def gerar_aula06():
         size=11, color=NAVY)
     buls(s, 0.6, 5.0, 5.8, 1.8,
          ["Equal-weight: turnover tipico 20-40% ao mes (entrada/saida de acoes)",
-          "Vol-weight: turnover similar ao EW, pesos flutuam com vol",
-          "Markowitz: turnover muito alto (60-100%) — inviavel sem restricoes"],
+          "Markowitz puro: pesos mudam drasticamente, turnover de 60-100%",
+          "Markowitz restrito: bounds [0, 0.20] seguram turnover e evitam giro excessivo"],
          size=12, color=NAVY, spacing=6)
     rect(s, 6.8, 2.02, 6.1, 4.78, fill=LIGHT)
     txt(s, 7.0, 2.1, 5.8, 0.38, "Impacto nos Retornos Liquidos", size=14, bold=True, color=NAVY)
@@ -702,21 +698,19 @@ def gerar_aula06():
           "Parece pouco, mas corroi 20-40% do alpha bruto tipico",
           "Break-even: qual custo maximo antes do alpha virar zero?",
           "Estrategias de baixo turnover sao muito mais robustas a custos",
-          "Pratica: testar diferentes frequencias (mensal vs bimestral)"],
+          "Pratica: restricoes estritas ajudam a manter a viabilidade"],
          size=12, color=NAVY, spacing=6)
-    ref(s, "Keim, D.B. & Madhavan, A. (1997). Transactions Costs and Investment Style. "
-           "J. of Financial Economics, 46(3), 265–292")
+    ref(s, "Keim, D.B. & Madhavan, A. (1997). Transactions Costs and Investment Style. JFE, 46(3)")
 
     construir(prs,
         ["pesos_equal_weight(sinal, n_top=10) — 1/N para top N acoes",
-         "pesos_vol_weight(sinal, ret_diarios, n_top=10) — 1/vol, normalizado",
-         "pesos_markowitz(sinal, ret_mensais, n_top=10) — scipy optimize + restricoes",
+         "pesos_markowitz_restrito(sinal, ret_mensais, n_top=10, limit=0.20) — scipy optimize + restricoes",
          "calcular_turnover(pesos_df) — |Δpesos| mensal e anualizado",
          "comparar_alocacoes(resultados_dict) — tabela e graficos lado a lado"],
         ["dados/retornos_diarios_limpo.parquet",
          "dados/retornos_mensais_limpo.parquet",
          "dados/sinal_v1.parquet"],
-        ["dados/pesos_v1.parquet (atualizado com as 3 versoes)",
+        ["dados/pesos_v1.parquet (atualizado com EW e Markowitz)",
          "dados/retorno_carteira_v1.parquet (atualizado)"])
 
     out = os.path.join(BASE, "aula-06-alocacao", "slides-aula-06-alocacao.pptx")
@@ -974,34 +968,31 @@ def gerar_aula08():
     print(f"  Aula 08: {len(prs.slides)} slides -> aula-08-backtest-rigoroso/")
 
 
-# ══════════════════════════════════════════════════════════
-# AULA 09 — GENAI + ANALISE
-# ══════════════════════════════════════════════════════════
 def gerar_aula09():
     prs = new_prs()
-    capa(prs, "09", "GenAI: Analise Automatizada com Claude",
-         "Usar LLMs para acelerar analise quantitativa — com limites claros",
-         ["O que LLMs realmente fazem: predicao de tokens, nao 'inteligencia'",
-          "API da Anthropic: autenticacao, chamadas, modelos disponiveis",
-          "Prompt engineering: 4 principios para resultados confiaveis",
-          "O que LLMs fazem bem (e mal) em analise quantitativa",
-          "Workflow: metricas → prompt → rascunho → revisao humana"])
+    capa(prs, "09", "GenAI, Relatorio e Defesa Oral",
+         "O fechamento do projeto: IA no pipeline quant, relatorio e defesa",
+         ["Como LLMs se encaixam no pipeline quant de forma pratica",
+          "Prompt engineering para analise tecnica com o Claude",
+          "A estrutura do relatorio profissional e os 7 criterios do Itau",
+          "Como defender escolhas metodologicas com base em fundamentos",
+          "Checklist de entrega e preparacao para a defesa oral"])
 
     agenda(prs,
-        ["Como LLMs funcionam internamente (intuicao)",
-         "API Anthropic: client, messages, system prompt",
-         "4 principios de prompt engineering",
-         "Limites dos LLMs em financas quantitativas"],
-        ["Configurar API key e instanciar client",
-         "Funcao chamar_claude() generica e reutilizavel",
-         "Gerar analise de cada secao do relatorio",
-         "Critica automatizada (juri virtual)",
-         "Refinamento multi-turn: critica -> reescrita"])
+        ["LLMs: o que fazem bem e o que NAO fazem em financas",
+         "Boas praticas de prompt (persona, dados, Chain of Thought)",
+         "Os 7 criterios de avaliacao da banca do Itau Asset",
+         "Estrategias de defesa oral: responder a perguntas dificeis"],
+        ["Setup: wrapper reutilizavel da API da Anthropic",
+         "Gerar draft de secoes do relatorio a partir de metricas",
+         "Tear sheet final: painel consolidado de 5 graficos",
+         "Simular banca virtual de defesa com Claude",
+         "Checklist final e validacao do notebook"])
 
-    # Slide 3: Como LLMs funcionam
+    # Slide 3: LLMs no Pipeline
     s = blank(prs)
     rect(s, 0, 0, W, H, fill=WHITE)
-    header(s, "Como LLMs Funcionam — Intuicao Essencial",
+    header(s, "Como LLMs Funcionam — Intuicao e Limites",
            "Entender o mecanismo evita tanto subestimar quanto superestimar a ferramenta")
     txt(s, 0.5, 1.28, 12.3, 0.42,
         "Large Language Models sao redes neurais treinadas para prever o proximo token "
@@ -1011,7 +1002,7 @@ def gerar_aula09():
     rect(s, 0.5, 1.84, 12.3, 0.03, fill=GOLD)
     card2(s, 0.4, 1.99, 3.98, 4.82, "O que LLMs fazem bem", GREEN,
           ["Sintetizar e estruturar texto com qualidade",
-           "Traduzir metricas numericas em linguagem natural",
+           "Traduzir metricas numericas in linguagem natural",
            "Seguir formatos especificos (JSON, Markdown, tabelas)",
            "Gerar rascunhos rapidos de secoes de relatorio",
            "Identificar pontos fracos em argumentacoes",
@@ -1030,8 +1021,7 @@ def gerar_aula09():
            "Use o LLM para rascunho e aceleracao, nao como oraculo",
            "O relatorio final deve refletir SUA analise, nao so do LLM",
            "Citacoes: verifique manualmente — LLMs inventam referencias"])
-    ref(s, "Vaswani, A. et al. (2017). Attention Is All You Need. NeurIPS; "
-           "Anthropic (2024). Claude Model Card. anthropic.com")
+    ref(s, "Vaswani, A. et al. (2017). Attention Is All You Need. NeurIPS; Anthropic (2024). Claude Model Card")
 
     # Slide 4: Prompt Engineering
     s = blank(prs)
@@ -1074,92 +1064,34 @@ def gerar_aula09():
         rect(s, x, y, 6.2, 0.4, fill=color)
         txt(s, x + 0.15, y + 0.06, 5.9, 0.32, title, size=13, bold=True, color=WHITE)
         txt(s, x + 0.15, y + 0.5, 5.9, 1.72, body, size=11, color=NAVY)
-    ref(s, "Brown, T. et al. (2020). Language Models are Few-Shot Learners. NeurIPS; "
-           "Wei, J. et al. (2022). Chain-of-Thought Prompting Elicits Reasoning in LLMs. NeurIPS")
+    ref(s, "Brown, T. et al. (2020). Language Models are Few-Shot Learners. NeurIPS; Wei, J. et al. (2022). Chain-of-Thought")
 
-    construir(prs,
-        ["chamar_claude(prompt, system, modelo, max_tokens) — wrapper da API generalizavel",
-         "metricas_para_texto(metricas_dict) — serializar numeros para o prompt",
-         "gerar_secao(secao, metricas, system_prompt) — gerar cada parte do relatorio",
-         "criticar_secao(texto, system_juri) — simular juri avaliando a secao",
-         "conversa_refinamento(secao, critica) — multi-turn: gerar → criticar → reescrever",
-         "montar_relatorio_completo() — juntar todas as secoes em Markdown"],
-        ["dados/retorno_carteira_sinal_v2.parquet",
-         "dados/retorno_walkforward_liquido.parquet"],
-        ["relatorio_draft.md (arquivo texto com rascunho completo)"])
-
-    out = os.path.join(BASE, "aula-09-genai-analise", "slides-aula-09-genai-analise.pptx")
-    prs.save(out)
-    print(f"  Aula 09: {len(prs.slides)} slides -> aula-09-genai-analise/")
-
-
-# ══════════════════════════════════════════════════════════
-# AULA 10 — RELATORIO + DEFESA
-# ══════════════════════════════════════════════════════════
-def gerar_aula10():
-    prs = new_prs()
-    capa(prs, "10", "Relatorio Final e Defesa Oral",
-         "O produto final do Intensivao: apresentar e defender a estrategia ao juri",
-         ["Estrutura do relatorio tecnico quant: o que vai em cada secao",
-          "Tear sheet: o cartao de visita visual da estrategia (5 paineis)",
-          "Defesa oral: como responder perguntas do juri com fundamento",
-          "Rubrica de avaliacao: 100 pontos distribuidos em 7 criterios",
-          "Cross-review: avaliar os outros times para afiar o proprio argumento"])
-
-    agenda(prs,
-        ["Estrutura do relatorio quant profissional",
-         "O que o juri realmente avalia (e como pontuar alto)",
-         "Como defender escolhas metodologicas",
-         "Erros fatais na defesa oral"],
-        ["Tear sheet final: 5 paineis em uma figura",
-         "Mapeamento de criterios de avaliacao por aula",
-         "Rubrica de cross-review (100 pontos)",
-         "Preparar 5 respostas para perguntas dificeis",
-         "Checklist final de entrega"])
-
-    # Slide 3: Estrutura do relatorio
+    # Slide 5: Os 7 Critérios do Itaú
     s = blank(prs)
     rect(s, 0, 0, W, H, fill=WHITE)
-    header(s, "Estrutura do Relatorio Tecnico Quant",
-           "Um relatorio profissional tem secoes definidas — cada uma responde a uma pergunta do juri")
+    header(s, "Os 7 Criterios de Avaliacao da Banca do Itau Asset",
+           "Entenda a rubrica de avaliacao de 100 pontos para direcionar o relatorio e apresentacao")
     txt(s, 0.5, 1.28, 12.3, 0.42,
-        "Um relatorio quant bem estruturado nao apenas apresenta resultados — ele conta uma historia: "
-        "'Identificamos uma anomalia empiricamente suportada, implementamos de forma rigoros e "
-        "obtemos resultado robusto fora da amostra, defensavel diante de custos reais.'",
+        "A banca avaliara os trabalhos com base em uma rubrica objetiva. "
+        "O rigor metodologico, a replicabilidade e a capacidade de defesa das escolhas "
+        "pesam substancialmente mais do que o retorno absoluto alcancado pela estrategia.",
         size=13, color=NAVY)
     rect(s, 0.5, 1.84, 12.3, 0.03, fill=GOLD)
-    secoes = [
-        ("1. Resumo Executivo", GOLD,
-         "1 pagina maxima. A resposta para: qual e a estrategia, qual o resultado principal, "
-         "por que e confiavel? Escreva por ultimo, mas posicione primeiro."),
-        ("2. Hipotese e Fundamentacao", NAVY,
-         "Por que momentum? Qual a teoria economica? Quais as referencias academicas primarias? "
-         "Mostrar que a tese tem base — nao e mineracao de dados."),
-        ("3. Dados e Metodologia", BLUE,
-         "Universo, periodo, fonte, limpeza realizada, sinal exato, esquema de alocacao. "
-         "Detalhe suficiente para que qualquer pessoa replique o backtest."),
-        ("4. Resultados do Backtest", GREEN,
-         "Metricas completas (IS e OOS separados). Comparacao com benchmark. "
-         "Analise de custos. Walk-forward. Graficos de retorno acumulado e drawdown."),
-        ("5. Analise de Risco", RED,
-         "Sensibilidade a parametros. Cenarios de stress. Periodos de underperformance. "
-         "Limitacoes explicitas do modelo. O que pode dar errado na pratica."),
-        ("6. Conclusao", PURP,
-         "Sintetizar os achados. Contribuicao da estrategia. "
-         "Proximos passos se fosse implementar em producao."),
-    ]
-    for i, (title, color, body) in enumerate(secoes):
-        row, col = i // 3, i % 3
-        x = 0.4 + col * 4.25
-        y = 2.02 + row * 2.42
-        rect(s, x, y, 4.05, 2.25, fill=LIGHT)
-        rect(s, x, y, 4.05, 0.4, fill=color)
-        txt(s, x + 0.12, y + 0.06, 3.82, 0.32, title, size=11, bold=True, color=WHITE)
-        txt(s, x + 0.12, y + 0.5, 3.82, 1.6, body, size=10.5, color=NAVY)
-    ref(s, "Lo, A.W. (2016). What is an index? J. of Portfolio Management, 42(2), 21–36; "
-           "Grinold, R. & Kahn, R. (1999). Active Portfolio Management. McGraw-Hill")
+    card2(s, 0.4, 1.99, 3.98, 4.82, "Conceito e Modelagem (40%)", NAVY,
+          ["1. Conceito da Estratégia (20%): Tese economica clara e fundamentada (Jegadeesh & Titman)",
+           "2. Modelagem (20%): Tratamento de dados, outliers, calculo do sinal e Markowitz restrito",
+           "Demonstrar por que cada escolha faz sentido e foi definida a priori para evitar overfitting"])
+    card2(s, 4.67, 1.99, 3.98, 4.82, "Validação e Resultados (30%)", BLUE,
+          ["4. Rigor no Backtest (15%): Sem look-ahead bias, shift correto de pesos e custos realistas (0.3%)",
+           "5. Analise de Resultados (15%): Sharpe, drawdown maximo, CAGR, Calmar, turnover e consistencia",
+           "Validacao Walk-Forward e degradacao OOS analisada de forma transparente"])
+    card2(s, 8.95, 1.99, 3.98, 4.82, "Uso de IA e Apresentação (30%)", GREEN,
+          ["3. Uso de GenAI (15%): Claude no pipeline qualitativo, redação e critica construtiva",
+           "6. Conclusao e Proximos Passos (10%): Limitações bem mapeadas e caminhos maduros de evolucao",
+           "7. Apresentacao (5%): Identidade visual premium, clareza do pitch e postura profissional"])
+    ref(s, "Lo, A.W. (2016). JPM, 42(2), 21-36; Grinold, R. & Kahn, R. (1999). Active Portfolio Management")
 
-    # Slide 4: Defesa oral
+    # Slide 6: Defesa oral
     s = blank(prs)
     rect(s, 0, 0, W, H, fill=WHITE)
     header(s, "Defesa Oral — Como Responder Perguntas do Juri",
@@ -1178,28 +1110,24 @@ def gerar_aula10():
          "Sensibilidade: grafico de Sharpe x janela mostra platô robusto ao redor de 12."),
         ("Por que equal-weight?",
          "Fundamento: DeMiguel et al. (2009) mostram que 1/N supera MV em 14 datasets fora da amostra.\n"
-         "Alternativas: testamos vol-weight e MV; vol-weight levemente melhor, MV pior apos custos.\n"
-         "Sensibilidade: diferenca de Sharpe entre EW e VW e pequena — escolhemos robustez."),
-        ("O backtest tem look-ahead?",
+         "Alternativas: testamos MV puro (instavel) e MV restrito com caps de 20% (nosso otimizado robusto).\n"
+         "Sensibilidade: restricoes no MV evitam pesos extremos e reduzem turnover, justificando a escolha."),
+        ("Como evitam look-ahead?",
          "Fundamento: sinal usa ret.shift(2).rolling(11) — dados disponiveis ate t-2 no maximo.\n"
-         "Alternativas: testamos sem shift — contamina e Sharpe sobe 40%; descartamos.\n"
-         "Sensibilidade: walk-forward OOS confirma performance sem acesso a dados futuros."),
-        ("Como sabem que nao e overfitting?",
-         "Fundamento: janela escolhida por teoria, nao por sweep; DSR calculado com N=35 testes.\n"
-         "Alternativas: simulamos 1000 estrategias aleatorias — nosso Sharpe supera 95% delas.\n"
-         "Sensibilidade: performance OOS (walk-forward) e 70% da IS — degradacao esperada."),
-        ("A estrategia funciona com custos reais?",
-         "Fundamento: modelamos 4 cenarios: 0%, 0,3%, 0,5%, 1,0% por turno.\n"
-         "Alternativas: break-even de custo e X% — acima disso alpha desaparece.\n"
-         "Sensibilidade: com custo de 0,3% (conservador), Sharpe liquido ainda e positivo."),
+         "Alternativas: testamos sem shift — contamina e Sharpe sobe 40%; descartamos por ser irrealista.\n"
+         "Sensibilidade: shift(1) nos pesos garante aplicacao somente no mês seguinte."),
+        ("A estrategia resiste a custos?",
+         "Fundamento: modelamos 4 cenarios: 0%, 0,3%, 0,5%, 1,0% por turno (corretagem + B3 + slippage).\n"
+         "Alternativas: break-even de custo e ~0.8% — acima disso o alpha teorico desaparece.\n"
+         "Sensibilidade: com custo realista de 0,3% por transacao, Sharpe liquido ainda e robusto e positivo."),
     ]
     for i, (q, a) in enumerate(perguntas):
-        y = 2.05 + i * 0.98
-        rect(s, 0.4, y, 12.5, 0.9, fill=LIGHT if i % 2 == 0 else WHITE)
+        y = 2.05 + i * 1.2
+        rect(s, 0.4, y, 12.5, 1.1, fill=LIGHT if i % 2 == 0 else WHITE)
         txt(s, 0.6, y + 0.05, 3.5, 0.35, q, size=11, bold=True, color=NAVY)
-        txt(s, 4.3, y + 0.05, 8.5, 0.78, a, size=10, color=NAVY)
+        txt(s, 4.3, y + 0.05, 8.5, 0.98, a, size=10, color=NAVY)
 
-    # Slide 5: Checklist final
+    # Slide 7: Checklist
     s = blank(prs)
     rect(s, 0, 0, W, H, fill=WHITE)
     header(s, "Checklist Final de Entrega",
@@ -1208,7 +1136,7 @@ def gerar_aula10():
     itens_l = [
         "[ ] Hipotese economica clara com referencias academicas primarias",
         "[ ] Sinal implementado com shift() correto (sem look-ahead bias)",
-        "[ ] Backtest com custos reais modelados (minimo 2 cenarios)",
+        "[ ] Backtest com custos reais modelados (minimo 0.3% por transacao)",
         "[ ] Walk-forward OOS reportado separadamente do IS",
         "[ ] Deflated Sharpe Ratio calculado e reportado",
         "[ ] Analise de sensibilidade a parametros (janela, N acoes)",
@@ -1218,13 +1146,12 @@ def gerar_aula10():
         "[ ] Comparacao com benchmark IBOVESPA em todas as metricas",
         "[ ] Metricas: Sharpe, Sortino, MDD, Calmar, alpha, beta",
         "[ ] Periodos de underperformance discutidos honestamente",
-        "[ ] Limitacoes do modelo explicitadas na conclusao",
-        "[ ] Relatorio com revisao humana (nao so GenAI)",
-        "[ ] 5 perguntas dificeis preparadas com estrutura fund→alt→sens",
+        "[ ] Limitacoes do modelo (survivorship bias, etc.) explicitadas",
+        "[ ] Relatorio com revisao humana (Claude usado como co-piloto)",
+        "[ ] Perguntas dificeis preparadas com estrutura fund→alt→sens",
         "[ ] Notebook roda do inicio ao fim sem erros antes de entregar",
     ]
     for i, item in enumerate(itens_l):
-        c = GREEN if "[ ]" in item else NAVY
         txt(s, 0.5, 1.42 + i * 0.75, 6.3, 0.65, item, size=12, color=NAVY)
     for i, item in enumerate(itens_r):
         txt(s, 6.9, 1.42 + i * 0.75, 6.3, 0.65, item, size=12, color=NAVY)
@@ -1234,28 +1161,26 @@ def gerar_aula10():
         size=13, bold=True, color=GOLD)
 
     construir(prs,
-        ["tearsheet_final(retornos, benchmark, metricas) — figura 5-paineis completa",
-         "plot_mapeamento_criterios() — cobertura de cada aula nos 7 criterios do juri",
-         "rubrica_crossreview() — tabela 100 pontos para avaliar outras equipes",
-         "preparar_defesa(perguntas, respostas) — formatar Q&A com estrutura fund→alt→sens",
-         "checklist_final() — verificar todos os requisitos do relatorio"],
-        ["dados/retorno_carteira_sinal_v2.parquet",
-         "dados/retorno_walkforward_liquido.parquet",
-         "relatorio_draft.md"],
-        ["relatorio_final.md (versao revisada e completa)",
-         "tearsheet_final.png",
-         "crossreview_rubrica.png"])
+        ["chamar_claude(prompt, system, modelo) — wrapper de API da Anthropic",
+         "metricas_para_texto(metricas) — formatar dados para prompt do Claude",
+         "gerar_secao_relatorio(secao, metricas) — drafts in markdown via LLM",
+         "painel_tear_sheet(ret_wf, ret_ibov) — plot consolidado de 5 paineis",
+         "simular_defesa_banca(perguntas) — simulador interativo de perguntas da banca"],
+        ["dados/retorno_walkforward_liquido.parquet",
+         "dados/retornos_mensais_limpo.parquet"],
+        ["relatorio_final_draft.md (draft estruturado com suporte de GenAI)",
+         "tearsheet_final.png (grafico consolidado de performance)"])
 
-    out = os.path.join(BASE, "aula-10-relatorio-defesa", "slides-aula-10-relatorio-defesa.pptx")
+    out = os.path.join(BASE, "aula-09-genai-relatorio", "slides-aula-09-genai-relatorio.pptx")
     prs.save(out)
-    print(f"  Aula 10: {len(prs.slides)} slides -> aula-10-relatorio-defesa/")
+    print(f"  Aula 09: {len(prs.slides)} slides -> aula-09-genai-relatorio/")
 
 
 # ══════════════════════════════════════════════════════════
 # MAIN
 # ══════════════════════════════════════════════════════════
 if __name__ == "__main__":
-    print("Gerando slides das aulas 02 a 10...")
+    print("Gerando slides das aulas 02 a 09...")
     gerar_aula02()
     gerar_aula03()
     gerar_aula04()
@@ -1264,5 +1189,4 @@ if __name__ == "__main__":
     gerar_aula07()
     gerar_aula08()
     gerar_aula09()
-    gerar_aula10()
-    print("Concluido! 9 arquivos .pptx gerados.")
+    print("Concluido! 8 arquivos .pptx gerados.")

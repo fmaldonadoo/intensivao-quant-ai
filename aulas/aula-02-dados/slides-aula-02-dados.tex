@@ -58,7 +58,7 @@
 \lstset{style=python}
 
 \author{Felipe Maldonado\\{\scriptsize VP Diretoria Quant~\textbullet{}~Impact UFSCAR}}
-\date{Intensivão Quant AI 2025}
+\date{Intensivão Quant AI 2026}
 \title{Aula 02 --- Dados}
 \subtitle{Coleta, Limpeza e Preparação de Dados Financeiros}
 
@@ -71,7 +71,7 @@
 \begin{frame}[fragile]{Nesta Aula}
 \begin{columns}[T]
   \column{0.5\textwidth}
-\begin{block}{Teoria (30 min)}
+\begin{block}{Teoria (20 min)}
 \begin{itemize}
   \item O universo IBOVESPA: composição e rebalanceamento
   \item Pipeline de dados: da fonte ao parquet
@@ -80,7 +80,7 @@
 \end{itemize}
 \end{block}
   \column{0.47\textwidth}
-\begin{block}{Código (70 min)}
+\begin{block}{Código (40 min)}
 \begin{itemize}
   \item \texttt{baixar\_dados()} — yfinance $\to$ DataFrame
   \item \texttt{limpar\_precos()} — outliers, forward-fill
@@ -100,7 +100,7 @@
   \item Critério de inclusão: liquidez (VDLA $\geq$ 0{,}1\% do total)
   \item Rebalanceamento: janeiro, maio e setembro
   \item Composição histórica obtida via yfinance
-  \item Período de análise: 2015--2024 (120 meses)
+  \item Período de análise: 2012--2024 (12 anos)
 \end{itemize}
   \column{0.47\textwidth}
 \begin{block}{Por que o IBOVESPA?}
