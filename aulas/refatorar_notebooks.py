@@ -1,24 +1,73 @@
 # -*- coding: utf-8 -*-
 """
 Refatora todos os notebooks do Intensivão Quant AI para serem 100% portáveis:
-  - Setup cell melhorado: instala pyarrow localmente, fallback se .git não existe
-  - Célula de verificação de dados em cada notebook que carrega parquets
-  - Corrige tickers_finais.csv para usar DADOS_DIR
-  - Normaliza todos os caminhos de parquet e csv para usar DADOS_DIR
+  - Célula 0: instala TUDO que precisa (pip install automático), reinicia kernel se necessário
+  - Célula 1: detecta ambiente (VS Code / Colab) e define DADOS_DIR
+  - Célula de check: avisa se dados da aula anterior estão faltando
+  - Normaliza todos os caminhos para usar DADOS_DIR
 """
 import json, re, os, glob
 
 BASE = os.path.dirname(os.path.abspath(__file__))
 
 # ─────────────────────────────────────────────────────────────────────────────
-# NOVA SETUP CELL (substitui a anterior em todos os notebooks)
+# CÉLULA 0 — INSTALAÇÃO DE DEPENDÊNCIAS
+# Roda antes de qualquer import. Instala o que falta e reinicia o kernel
+# automaticamente se algo foi instalado (necessário para o import funcionar).
+# ─────────────────────────────────────────────────────────────────────────────
+
+INSTALL_CELL = """\
+# ── INSTALAÇÃO AUTOMÁTICA DE DEPENDÊNCIAS ────────────────────────────────────
+# Esta célula garante que todas as bibliotecas necessárias estão instaladas.
+# Rode ela primeiro — ela detecta o que falta e instala automaticamente.
+
+import subprocess, sys, importlib
+
+PACOTES = {
+    'pandas':      'pandas>=2.0',
+    'numpy':       'numpy>=1.26',
+    'matplotlib':  'matplotlib>=3.8',
+    'yfinance':    'yfinance>=0.2.40',
+    'pyarrow':     'pyarrow>=15.0',
+    'scipy':       'scipy>=1.11',
+    'statsmodels': 'statsmodels>=0.14',
+    'sklearn':     'scikit-learn>=1.4',
+    'anthropic':   'anthropic>=0.25',
+}
+
+instalou = False
+for modulo, pacote in PACOTES.items():
+    try:
+        importlib.import_module(modulo)
+    except ImportError:
+        print(f"Instalando {pacote}...")
+        subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', pacote],
+                       check=False)
+        instalou = True
+
+if instalou:
+    print("\\n✓ Instalação concluída.")
+    print("  Reiniciando o kernel para carregar as novas bibliotecas...")
+    # Reinicia o kernel automaticamente (funciona no VS Code e no Colab)
+    try:
+        import IPython
+        IPython.Application.instance().kernel.do_shutdown(restart=True)
+    except Exception:
+        print("  Reinicie o kernel manualmente (Ctrl+Shift+P → Restart Kernel)")
+        print("  e rode todas as células novamente.")
+else:
+    print("✓ Todas as dependências já estão instaladas. Pode continuar.")
+"""
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CÉLULA 1 — CONFIGURAÇÃO DO AMBIENTE (VS Code / Colab + DADOS_DIR)
 # ─────────────────────────────────────────────────────────────────────────────
 
 SETUP_CELL = """\
 # ── CONFIGURAÇÃO DO AMBIENTE ─────────────────────────────────────────────────
-# Este notebook roda no VS Code (Jupyter local) E no Google Colab.
-# Execute esta célula primeiro — ela detecta o ambiente e configura os caminhos.
-# Qualquer pessoa que clonar o repositório pode rodar sem modificações.
+# Detecta se está rodando no VS Code ou no Google Colab e define DADOS_DIR —
+# a pasta onde todos os arquivos de dados do curso serão salvos.
+# Funciona em qualquer computador, sem precisar alterar nada.
 
 import os, sys, subprocess
 
@@ -30,46 +79,27 @@ except ImportError:
 
 if IN_COLAB:
     # ── Google Colab ──────────────────────────────────────────────────────────
-    print("Ambiente detectado: Google Colab")
-
-    # Montar Google Drive para persistir os dados entre sessões
+    print("Ambiente: Google Colab")
     from google.colab import drive
     drive.mount('/content/drive')
 
-    # Instalar dependências não incluídas no Colab por padrão
-    subprocess.run(['pip', 'install', '-q', 'yfinance', 'pyarrow',
-                    'statsmodels', 'python-docx', 'anthropic'], check=False)
-
-    # Clonar o repositório do curso (pula automaticamente se já existir)
+    # Clonar o repositório do curso se ainda não existir
     REPO_DIR = '/content/intensivao-quant-ai'
     if not os.path.exists(REPO_DIR):
         print("Clonando repositório do curso...")
-        subprocess.run([
-            'git', 'clone',
-            'https://github.com/fmaldonadoo/intensivao-quant-ai.git',
-            REPO_DIR
-        ], check=False)
-        print("Repositório clonado com sucesso.")
+        subprocess.run(['git', 'clone',
+                        'https://github.com/fmaldonadoo/intensivao-quant-ai.git',
+                        REPO_DIR], check=False)
 
-    # Pasta de dados no Google Drive — persiste entre sessões do Colab
+    # Dados salvos no Google Drive — persistem entre sessões
     DADOS_DIR = '/content/drive/MyDrive/intensivao_quant/dados'
-    os.makedirs(DADOS_DIR, exist_ok=True)
-    print(f"Dados em: {DADOS_DIR}")
 
 else:
     # ── VS Code / Jupyter local ───────────────────────────────────────────────
-    print("Ambiente detectado: VS Code / Jupyter local")
+    print("Ambiente: VS Code / Jupyter local")
 
-    # Garante que pyarrow está instalado (necessário para ler/salvar parquet)
-    try:
-        import pyarrow
-    except ImportError:
-        print("Instalando pyarrow...")
-        subprocess.run([sys.executable, '-m', 'pip', 'install', '-q', 'pyarrow'],
-                       check=False)
-
-    # Localiza a raiz do repositório subindo a árvore de diretórios até o .git
-    # Funciona independente de onde o usuário clonou o projeto
+    # Sobe pastas até encontrar a raiz do repositório (onde fica o .git)
+    # Funciona independente de onde o usuário salvou o projeto
     _p = os.path.abspath(os.getcwd())
     _root = None
     while _p != os.path.dirname(_p):
@@ -78,23 +108,22 @@ else:
             break
         _p = os.path.dirname(_p)
 
-    # Fallback: se não encontrar .git, usa a pasta pai do notebook
     if _root is None:
+        # Fallback: usa a pasta onde o notebook está
         _root = os.path.dirname(os.path.abspath('__file__'))
-        print("  Aviso: repositório .git não encontrado. Usando pasta do notebook.")
 
     DADOS_DIR = os.path.join(_root, 'dados')
-    os.makedirs(DADOS_DIR, exist_ok=True)
-    print(f"Dados em: {DADOS_DIR}")
+
+os.makedirs(DADOS_DIR, exist_ok=True)
+print(f"Pasta de dados: {DADOS_DIR}")
 """
 
-# Marcador para detectar se a setup cell já está no novo formato
-NOVO_SETUP_MARKER = "Qualquer pessoa que clonar o repositório pode rodar sem modificações."
-SETUP_MARKER_ANTIGO = "IN_COLAB"  # detecta a setup cell antiga
+# Marcadores para identificar as células
+INSTALL_MARKER = "INSTALAÇÃO AUTOMÁTICA DE DEPENDÊNCIAS"
+SETUP_MARKER   = "CONFIGURAÇÃO DO AMBIENTE"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CÉLULAS DE VERIFICAÇÃO DE DADOS por notebook
-# Cada chave = substring do nome do arquivo; valor = (arquivos_necessários, aula_anterior)
 # ─────────────────────────────────────────────────────────────────────────────
 
 CHECKS = {
@@ -133,150 +162,125 @@ CHECKS = {
 }
 
 def make_check_cell(arquivos, aula_anterior):
-    arquivos_str = '\n'.join(
-        f"    os.path.join(DADOS_DIR, '{f}')," for f in arquivos
-    )
+    linhas = '\n'.join(f"    os.path.join(DADOS_DIR, '{f}')," for f in arquivos)
     return f"""\
-# ── VERIFICAÇÃO DE DEPENDÊNCIAS ──────────────────────────────────────────────
-# Este notebook depende dos dados gerados pela aula anterior.
-# Se algum arquivo estiver faltando, rode o notebook indicado primeiro.
-
-_arquivos_necessarios = [
-{arquivos_str}
+# ── VERIFICAÇÃO DE DADOS DA AULA ANTERIOR ────────────────────────────────────
+_necessarios = [
+{linhas}
 ]
-
-_faltando = [f for f in _arquivos_necessarios if not os.path.exists(f)]
+_faltando = [f for f in _necessarios if not os.path.exists(f)]
 if _faltando:
-    print("\\n⚠  ATENÇÃO: arquivos necessários não encontrados:")
+    print("\\n⚠  Arquivos necessários não encontrados:")
     for f in _faltando:
-        print(f"   Faltando: {{os.path.basename(f)}}")
-    print(f"\\n   Execute primeiro o notebook: {aula_anterior}")
-    print(f"   Os dados devem ficar em: {{DADOS_DIR}}")
+        print(f"   • {{os.path.basename(f)}}")
+    print(f"\\n   Execute primeiro: {aula_anterior}")
+    print(f"   Dados esperados em: {{DADOS_DIR}}")
 else:
-    print("✓  Todos os arquivos necessários encontrados.")
+    print("✓  Dados encontrados. Pode continuar.")
 """
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Helpers de manipulação de notebook
+# Helpers
 # ─────────────────────────────────────────────────────────────────────────────
 
 def src(cell):
     s = cell.get('source', [])
     return ''.join(s) if isinstance(s, list) else s
 
-def make_cell(source):
-    return {
-        'cell_type': 'code',
-        'execution_count': None,
-        'metadata': {},
-        'outputs': [],
-        'source': source
-    }
-
-def to_source_list(text):
-    lines = text.splitlines(keepends=True)
-    # Remove \n da última linha
+def make_code_cell(source):
+    lines = source.splitlines(keepends=True)
     if lines and lines[-1].endswith('\n'):
         lines[-1] = lines[-1].rstrip('\n')
-    return lines
+    return {'cell_type': 'code', 'execution_count': None,
+            'metadata': {}, 'outputs': [], 'source': lines}
 
-
-def fix_paths(source: str) -> str:
-    """
-    Normaliza todos os caminhos relativos para usar DADOS_DIR.
-    Trata parquet e csv.
-    """
-    # 1. Caminhos com ../../dados/ ou ../dados/
+def fix_paths(source):
+    # Caminhos com ../../dados/ ou ../dados/
     source = re.sub(
         r"'(?:\.\.[\\/])+dados[\\/]([\w\-\.]+\.(parquet|csv))'",
-        r"os.path.join(DADOS_DIR, '\1')",
-        source
-    )
-    # 2. Caminhos só com nome do arquivo (sem prefixo de pasta)
-    # Negative lookbehind para não duplicar
+        r"os.path.join(DADOS_DIR, '\1')", source)
+    # Caminhos com só o nome do arquivo
     source = re.sub(
         r"(?<!DADOS_DIR, )'([\w\-]+\.(parquet|csv))'",
-        r"os.path.join(DADOS_DIR, '\1')",
-        source
-    )
+        r"os.path.join(DADOS_DIR, '\1')", source)
     return source
 
+def update_or_insert(cells, marker, new_cell, after_idx=0):
+    """Substitui célula com marker, ou insere em after_idx+1."""
+    for i, cell in enumerate(cells):
+        if marker in src(cell):
+            cells[i] = new_cell
+            return cells, 'updated', i
+    cells.insert(after_idx, new_cell)
+    return cells, 'inserted', after_idx
 
-def refactor_notebook(nb_path: str):
+# ─────────────────────────────────────────────────────────────────────────────
+
+def refactor(nb_path):
     with open(nb_path, encoding='utf-8') as f:
         nb = json.load(f)
 
-    cells  = nb.get('cells', [])
-    nome   = os.path.basename(nb_path)
+    cells   = nb.get('cells', [])
+    nome    = os.path.basename(nb_path)
     changed = False
 
-    # ── 1. Substituir (ou inserir) setup cell ────────────────────────────────
-    setup_idx = None
-    for i, cell in enumerate(cells[:5]):
-        s = src(cell)
-        if SETUP_MARKER_ANTIGO in s or NOVO_SETUP_MARKER in s:
-            setup_idx = i
-            break
-
-    new_setup = make_cell(to_source_list(SETUP_CELL))
-
-    if setup_idx is not None:
-        if NOVO_SETUP_MARKER not in src(cells[setup_idx]):
-            cells[setup_idx] = new_setup
-            print(f"  [setup atualizado]  {nome}")
-            changed = True
-        else:
-            print(f"  [setup ok]          {nome}")
-    else:
-        # Insere após o primeiro cell markdown (título)
-        insert_at = 1 if (cells and cells[0].get('cell_type') == 'markdown') else 0
-        cells.insert(insert_at, new_setup)
-        print(f"  [setup inserido]    {nome}")
+    # ── 1. Célula de instalação (posição 0, logo antes do título markdown) ───
+    install_cell = make_code_cell(INSTALL_CELL)
+    cells, action, pos = update_or_insert(cells, INSTALL_MARKER, install_cell, after_idx=0)
+    if action == 'inserted':
+        # Garante que o título markdown fica antes da instalação
+        if cells and cells[0].get('cell_type') == 'markdown' and pos == 0:
+            cells.insert(1, cells.pop(0))   # título sobe para [0], install fica [1]
         changed = True
+        print(f"  [install inserido]  {nome}")
+    else:
+        changed = True
+        print(f"  [install atualizado] {nome}")
 
-    # ── 2. Inserir / atualizar célula de verificação de dependências ─────────
+    # ── 2. Célula de setup (logo após install) ───────────────────────────────
+    setup_cell = make_code_cell(SETUP_CELL)
+    cells, action, pos = update_or_insert(cells, SETUP_MARKER, setup_cell,
+                                          after_idx=1)
+    if action == 'inserted':
+        changed = True
+        print(f"  [setup inserido]    {nome}")
+    else:
+        if src(cells[pos]) != SETUP_CELL:
+            changed = True
+            print(f"  [setup atualizado]  {nome}")
+
+    # ── 3. Célula de verificação de dados (aulas 03–09) ──────────────────────
     chave = next((k for k in CHECKS if k in nb_path), None)
     if chave:
         arquivos, aula_ant = CHECKS[chave]
-        check_source = make_check_cell(arquivos, aula_ant)
-        CHECK_MARKER = "VERIFICAÇÃO DE DEPENDÊNCIAS"
+        check_src  = make_check_cell(arquivos, aula_ant)
+        check_cell = make_code_cell(check_src)
+        CHECK_MARKER = "VERIFICAÇÃO DE DADOS DA AULA ANTERIOR"
 
-        check_idx = None
-        for i, cell in enumerate(cells):
-            if CHECK_MARKER in src(cell):
-                check_idx = i
-                break
+        # Inserir logo após o bloco de imports (procura célula com 'import pandas')
+        import_pos = next(
+            (i for i, c in enumerate(cells)
+             if 'import pandas' in src(c) or 'import numpy' in src(c)), 3)
 
-        new_check = make_cell(to_source_list(check_source))
-
-        if check_idx is not None:
-            if src(cells[check_idx]) != check_source:
-                cells[check_idx] = new_check
-                print(f"  [check atualizado]  {nome}")
-                changed = True
-        else:
-            # Insere logo após a setup cell e o bloco de imports (posição ~3)
-            import_idx = next(
-                (i for i, c in enumerate(cells)
-                 if 'import pandas' in src(c) or 'import numpy' in src(c)),
-                None
-            )
-            pos = (import_idx + 1) if import_idx else 3
-            cells.insert(pos, new_check)
-            print(f"  [check inserido]    {nome}")
+        cells, action, _ = update_or_insert(cells, CHECK_MARKER, check_cell,
+                                            after_idx=import_pos)
+        if action == 'inserted':
             changed = True
+            print(f"  [check inserido]    {nome}")
 
-    # ── 3. Normalizar caminhos em células de código ──────────────────────────
+    # ── 4. Normalizar caminhos de parquet/csv ────────────────────────────────
     for cell in cells:
         if cell.get('cell_type') != 'code':
             continue
-        original = src(cell)
-        fixado   = fix_paths(original)
-        if fixado != original:
-            cell['source'] = to_source_list(fixado)
+        orig = src(cell)
+        fixado = fix_paths(orig)
+        if fixado != orig:
+            lines = fixado.splitlines(keepends=True)
+            if lines and lines[-1].endswith('\n'):
+                lines[-1] = lines[-1].rstrip('\n')
+            cell['source'] = lines
             changed = True
 
-    # ── 4. Salvar se houve mudança ───────────────────────────────────────────
     if changed:
         nb['cells'] = cells
         with open(nb_path, 'w', encoding='utf-8') as f:
@@ -285,12 +289,8 @@ def refactor_notebook(nb_path: str):
     return changed
 
 
-# ─────────────────────────────────────────────────────────────────────────────
 if __name__ == '__main__':
-    print("Refatorando notebooks para portabilidade total...\n")
+    print("Refatorando notebooks...\n")
     notebooks = sorted(glob.glob(os.path.join(BASE, '*/aula-*.ipynb')))
-    n_changed = 0
-    for nb in notebooks:
-        if refactor_notebook(nb):
-            n_changed += 1
-    print(f"\nConcluído! {len(notebooks)} notebooks processados, {n_changed} modificados.")
+    n = sum(1 for nb in notebooks if refactor(nb))
+    print(f"\nConcluído! {len(notebooks)} notebooks, {n} modificados.")
